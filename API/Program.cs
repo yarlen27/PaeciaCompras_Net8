@@ -49,6 +49,7 @@ namespace API
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
     WebHost.CreateDefaultBuilder(args)
         .UseStartup<Startup>()
+        .UseUrls("https://*:7999")
         .ConfigureLogging(logging =>
         {
             logging.ClearProviders();

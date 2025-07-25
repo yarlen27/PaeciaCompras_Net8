@@ -1,0 +1,21 @@
+2025-07-25 13:00:24.9669 Info Registered target NLog.Targets.FileTarget(Name=allfile)
+2025-07-25 13:00:25.0055 Info Registered target NLog.Targets.FileTarget(Name=ownFile-web)
+2025-07-25 13:00:25.0109 Info NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 5.3.4.2778. Product version: 5.3.4+73d83d3161d31288ca5c554cc50d27b6bed5f28b. GlobalAssemblyCache: False
+2025-07-25 13:00:25.0215 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=/home/yarlen/projects/paecia_compras/PaeciaCompras-NET8/API/bin/Debug/net8.0/nlog.config
+2025-07-25 13:00:25.0308 Info Configuration initialized.
+2025-07-25 13:00:25.1413 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=/home/yarlen/projects/paecia_compras/PaeciaCompras-NET8/API/bin/Debug/net8.0/nlog.config
+2025-07-25 13:00:25.2056 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=/home/yarlen/projects/paecia_compras/PaeciaCompras-NET8/API/bin/Debug/net8.0/nlog.config
+2025-07-25 13:08:06.3662 Info Registered target NLog.Targets.FileTarget(Name=allfile)
+2025-07-25 13:08:06.4018 Info Registered target NLog.Targets.FileTarget(Name=ownFile-web)
+2025-07-25 13:08:06.4060 Info NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 5.3.4.2778. Product version: 5.3.4+73d83d3161d31288ca5c554cc50d27b6bed5f28b. GlobalAssemblyCache: False
+2025-07-25 13:08:06.4152 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=/home/yarlen/projects/paecia_compras/PaeciaCompras-NET8/API/bin/Debug/net8.0/nlog.config
+2025-07-25 13:08:06.4246 Info Configuration initialized.
+2025-07-25 13:08:06.5178 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=/home/yarlen/projects/paecia_compras/PaeciaCompras-NET8/API/bin/Debug/net8.0/nlog.config
+2025-07-25 13:08:06.5691 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=/home/yarlen/projects/paecia_compras/PaeciaCompras-NET8/API/bin/Debug/net8.0/nlog.config
+2025-07-25 14:06:03.2447 Info Registered target NLog.Targets.FileTarget(Name=allfile)
+2025-07-25 14:06:03.2807 Info Registered target NLog.Targets.FileTarget(Name=ownFile-web)
+2025-07-25 14:06:03.2852 Info NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 5.3.4.2778. Product version: 5.3.4+73d83d3161d31288ca5c554cc50d27b6bed5f28b. GlobalAssemblyCache: False
+2025-07-25 14:06:03.2947 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=/home/yarlen/projects/paecia_compras/PaeciaCompras-NET8/API/bin/Debug/net8.0/nlog.config
+2025-07-25 14:06:03.3044 Info Configuration initialized.
+2025-07-25 14:06:03.3970 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=/home/yarlen/projects/paecia_compras/PaeciaCompras-NET8/API/bin/Debug/net8.0/nlog.config
+2025-07-25 14:06:03.4432 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=/home/yarlen/projects/paecia_compras/PaeciaCompras-NET8/API/bin/Debug/net8.0/nlog.config
