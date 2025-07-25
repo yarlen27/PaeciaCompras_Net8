@@ -1,0 +1,114 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="EmailTemplates\FacturaAlertaTesoreria.html" />
+    <None Remove="EmailTemplates\FacturaMantenimiento.html" />
+    <None Remove="EmailTemplates\FacturaMantenimientoPrimerAprobacion.html" />
+    <None Remove="EmailTemplates\FacturaMantenimientoRechazada.html" />
+    <None Remove="EmailTemplates\facturaRechazada.html" />
+    <None Remove="EmailTemplates\facturaRechazadaCoordinadorProveedor.html" />
+    <None Remove="EmailTemplates\facturaRechazadaCoordinadorRecepcion.html" />
+    <None Remove="EmailTemplates\facturaRechazadaDirectorProyectoProveedor.html" />
+    <None Remove="EmailTemplates\facturaRechazadaDirectorProyectoRecepcion.html" />
+    <None Remove="EmailTemplates\materialRechazado.html" />
+    <None Remove="EmailTemplates\NotificacionFacturaEditadaAuxiliarContable.html" />
+    <None Remove="EmailTemplates\nuevaFactura.html" />
+    <None Remove="EmailTemplates\nuevaOrden.html" />
+    <None Remove="EmailTemplates\NuevaOrdenItem.html" />
+    <None Remove="EmailTemplates\nuevaOrdenServicio.html" />
+    <None Remove="EmailTemplates\NuevaOrdenServicioItem.html" />
+    <None Remove="EmailTemplates\nuevaRemision.html" />
+    <None Remove="EmailTemplates\NuevoPedidoMateriales.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="EmailTemplates\FacturaAlertaTesoreria.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EmailTemplates\FacturaMantenimientoRechazada.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EmailTemplates\FacturaMantenimientoPrimerAprobacion.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EmailTemplates\FacturaMantenimiento.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EmailTemplates\NotificacionFacturaEditadaAuxiliarContable.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EmailTemplates\facturaRechazadaDirectorProyectoProveedor.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EmailTemplates\facturaRechazadaCoordinadorProveedor.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EmailTemplates\facturaRechazadaDirectorProyectoRecepcion.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EmailTemplates\facturaRechazadaCoordinadorRecepcion.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EmailTemplates\materialRechazado.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EmailTemplates\facturaRechazada.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EmailTemplates\nuevaRemision.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EmailTemplates\nuevaFactura.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EmailTemplates\NuevaOrdenServicioItem.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EmailTemplates\nuevaOrdenServicio.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EmailTemplates\NuevaOrdenItem.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="EmailTemplates\nuevaOrden.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EmailTemplates\NuevoPedidoMateriales.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.S3" Version="3.7.404" />
+    <PackageReference Include="ClosedXML" Version="0.104.2" />
+    <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="Dapper.SimpleCRUD" Version="2.3.0" />
+    <PackageReference Include="iText7" Version="8.0.5" />
+    <PackageReference Include="jsreport.AspNetCore" Version="3.8.1" />
+    <PackageReference Include="jsreport.Binary" Version="4.4.0" />
+    <PackageReference Include="jsreport.Client" Version="3.8.1" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="8.0.8" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" Version="8.0.0" />
+    <PackageReference Include="MimeMapping" Version="2.0.0" />
+    <PackageReference Include="RestSharp" Version="112.1.0" />
+    <PackageReference Include="Sendgrid" Version="9.29.3" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+    <PackageReference Include="MimeKit" Version="4.8.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AspNetCore.Identity.MongoDB\AspNetCore.Identity.MongoDB.csproj" />
+    <ProjectReference Include="..\Cobalto.MongoDB.Core\Cobalto.MongoDB.Core.csproj" />
+  </ItemGroup>
+
+
+</Project>

@@ -1,0 +1,113 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Core.EmailTemplates
+{
+    public static class TemplateNuevoPedidoServicios
+    {
+
+
+        // BuildMyString.com generated code. Please enjoy your string responsibly.
+
+        public static string template =
+// BuildMyString.com generated code. Please enjoy your string responsibly.
+
+"<table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" align=\"center\" class=\"wrapper\">" +
+"    <tbody>" +
+"        <tr>" +
+"            <td>" +
+"                <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\">" +
+"                    <tbody>" +
+"                        <tr>" +
+"                            <td style=\"border-radius: 3px; border-bottom: 2px solid #d4d4d4;\" class=\"card-1\" width=\"100%\"" +
+"                                valign=\"top\" align=\"center\">" +
+"                                <table style=\"border-radius: 3px;\" width=\"600\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"" +
+"                                    align=\"center\" class=\"wrapper\" bgcolor=\"#ffffff\">" +
+"                                    <tbody>" +
+"                                        <tr>" +
+"                                            <td align=\"center\">" +
+"                                                <table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"container\">" +
+"                                                    <!-- START HEADER IMAGE -->" +
+"                                                    <tbody>" +
+"                                                        <tr>" +
+"                                                            <td align=\"center\" class=\"hund ripplelink\" width=\"600\">" +
+"                                                                <img align=\"center\" width=\"600\" style=\"border-radius: 3px 3px 0px 0px; width: 100%; max-width: 600px!important\"" +
+"                                                                    class=\"hund\" src=\"http://paulgoddarddesign.com/emails/images/material-design/material-header-2.jpg\">" +
+"                                                            </td>" +
+"                                                        </tr>" +
+"                                                        <!-- END HEADER IMAGE -->" +
+"                                                        <!-- START BODY COPY -->" +
+"                                                        <tr>" +
+"                                                            <td class=\"td-padding\" align=\"left\" style=\"font-family: 'Roboto Mono', monospace; color: #212121!important; font-size: 24px; line-height: 30px; padding-top: 18px; padding-left: 18px!important; padding-right: 18px!important; padding-bottom: 0px!important; mso-line-height-rule: exactly; mso-padding-alt: 18px 18px 0px 13px;\">" +
+"                                                                NUEVO PEDIDO DE SERVICIOS" +
+"                                                            </td>" +
+"                                                        </tr>" +
+"                                                        <tr>" +
+"                                                            <td class=\"td-padding\" align=\"left\" style=\"font-family: 'Roboto Mono', monospace; color: #212121!important; font-size: 24px; line-height: 30px; padding-top: 18px; padding-left: 18px!important; padding-right: 18px!important; padding-bottom: 0px!important; mso-line-height-rule: exactly; mso-padding-alt: 18px 18px 0px 13px;\">" +
+"                                                                PROYECTO: #NOMBREPROYECTO" +
+"                                                            </td>" +
+"                                                        </tr>" +
+"                                                        <tr>" +
+"                                                        <tr>" +
+"                                                            <td class=\"td-padding\" align=\"left\" style=\"font-family: 'Roboto Mono', monospace; color: #212121!important; font-size: 24px; line-height: 30px; padding-top: 18px; padding-left: 18px!important; padding-right: 18px!important; padding-bottom: 0px!important; mso-line-height-rule: exactly; mso-padding-alt: 18px 18px 0px 13px;\">" +
+"                                                                FECHA: #FECHA" +
+"                                                            </td>" +
+"                                                        </tr>" +
+"                                                        <tr>" +
+"                                                                <td class=\"td-padding\" align=\"left\" style=\"font-family: 'Roboto Mono', monospace; color: #212121!important; font-size: 24px; line-height: 30px; padding-top: 18px; padding-left: 18px!important; padding-right: 18px!important; padding-bottom: 0px!important; mso-line-height-rule: exactly; mso-padding-alt: 18px 18px 0px 13px;\">" +
+"                                                                    SOLICITANTE: #SOLICITANTE" +
+"                                                                </td>" +
+"                                                            </tr>" +
+"                                                        <tr>" +
+"                                                            <td class=\"td-padding\" align=\"left\" style=\"font-family: 'Roboto Mono', monospace; color: #212121!important; font-size: 16px; line-height: 24px; padding-top: 18px; padding-left: 18px!important; padding-right: 18px!important; padding-bottom: 0px!important; mso-line-height-rule: exactly; mso-padding-alt: 18px 18px 0px 18px;\">" +
+"                                                                Haga clic en el siguiente botón para ir a la herramienta de gestión de compras." +
+"                                                            </td>" +
+"                                                        </tr>" +
+"                                                        <!-- END BODY COPY -->" +
+"                                                        <!-- BUTTON -->" +
+"                                                        <tr>" +
+"                                                            <td align=\"left\" style=\"padding: 18px 18px 18px 18px; mso-alt-padding: 18px 18px 18px 18px!important;\">" +
+"                                                                <table width=\"100%\" border=\"0\" cellspacing=\"0\"" +
+"                                                                    cellpadding=\"0\">" +
+"                                                                    <tbody>" +
+"                                                                        <tr>" +
+"                                                                            <td>" +
+"                                                                                <table border=\"0\" cellspacing=\"0\"" +
+"                                                                                    cellpadding=\"0\">" +
+"                                                                                    <tbody>" +
+"                                                                                        <tr>" +
+"                                                                                            <td align=\"left\" style=\"border-radius: 3px;\"" +
+"                                                                                                bgcolor=\"#234688\">" +
+
+"                                                                                               <a class=\"button raised\" href=\"#SITEURL\" target=\"_blank\" style=\"font-size: 14px; line-height: 14px; font-weight: 500; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; border-radius: 3px; padding: 10px 25px; border: 1px solid #234688; display: inline-block;\">VER DETALLE</a>" +
+
+"                                                                                            </td>" +
+"                                                                                        </tr>" +
+"                                                                                    </tbody>" +
+"                                                                                </table>" +
+"                                                                            </td>" +
+"                                                                        </tr>" +
+"                                                                    </tbody>" +
+"                                                                </table>" +
+"                                                            </td>" +
+"                                                        </tr>" +
+"                                                        <!-- END BUTTON -->" +
+"                                                    </tbody>" +
+"                                                </table>" +
+"                                            </td>" +
+"                                        </tr>" +
+"                                    </tbody>" +
+"                                </table>" +
+"                            </td>" +
+"                        </tr>" +
+"                    </tbody>" +
+"                </table>" +
+"            </td>" +
+"        </tr>" +
+"    </tbody>" +
+"</table>";
+
+
+    }
+}
