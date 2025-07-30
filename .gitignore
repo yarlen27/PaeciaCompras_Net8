@@ -61,3 +61,7 @@ Thumbs.db
 # Node.js (si aplica)
 node_modules/
 npm-debug.log*
+
+# Database backups and large files
+dump_backup/
+*.bson
