@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  paecia-compras-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: paecia-compras-api
+    ports:
+      - "7998:7998"   # HTTP port
+      - "7999:7999"   # HTTPS port
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:7998
+      - ASPNETCORE_HTTP_PORT=7998
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY:-YOUR_SENDGRID_API_KEY_HERE}
+      - MongoDb__ConnectionString=mongodb://admin:Cobalto.12@mongodb:27017
+    volumes:
+      - ./API/nlog.config:/app/nlog.config:ro
+    restart: unless-stopped
+    networks:
+      - paecia-network
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:8.0.12
+    container_name: paecia-compras-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=Cobalto.12
+      - MONGO_INITDB_DATABASE=GestionCompras
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    restart: unless-stopped
+    networks:
+      - paecia-network
+
+volumes:
+  mongodb_data:
+  mongodb_config:
+
+networks:
+  paecia-network:
+    driver: bridge
