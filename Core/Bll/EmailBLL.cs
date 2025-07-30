@@ -1540,9 +1540,7 @@ namespace Core.BLL
 
         private static SendGridClient BuildSendGridClient()
         {
-            //var apiKey = "YOUR_SENDGRID_API_KEY_HERE";
-            var apiKey = "YOUR_SENDGRID_API_KEY_HERE";
-            //var apiKey = "YOUR_SENDGRID_API_KEY_HERE";
+            var apiKey = Environment.GetEnvironmentVariable("SENDGRID_API_KEY") ?? "YOUR_SENDGRID_API_KEY_HERE";
             var client = new SendGridClient(apiKey);
             return client;
         }
