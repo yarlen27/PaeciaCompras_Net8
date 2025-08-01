@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using AspNetCore.Identity.MongoDB;
 using Cobalto.SQL.Core;
@@ -35,6 +38,11 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Configurar cultura para que funcione igual que en IIS
+            var culture = new CultureInfo("es-CO"); // O la cultura que usa tu servidor IIS
+            CultureInfo.DefaultThreadCurrentCulture = culture;
+            CultureInfo.DefaultThreadCurrentUICulture = culture;
+            
             services.Configure<MongoDbSettings>(Configuration.GetSection("MongoDb"));
             services.AddBLL(Configuration);
             services.AddSQLBLL(Configuration);
@@ -67,7 +75,16 @@ namespace API
             AddSwagger(services);
 
 
-            services.AddMvc(options => options.EnableEndpointRouting = false).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc(options => options.EnableEndpointRouting = false)
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+                .AddJsonOptions(options =>
+                {
+                    // Configurar para aceptar formato de fecha personalizado
+                    options.JsonSerializerOptions.Converters.Add(new FlexibleDateTimeConverter());
+                    
+                    // Configurar para mayor flexibilidad como Newtonsoft.Json
+                    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                });
 
 
 
@@ -144,6 +161,45 @@ namespace API
             //   app.UseHttpsRedirection();
             app.UseMvc();
 
+        }
+    }
+
+    // Converter personalizado para fechas flexibles
+    public class FlexibleDateTimeConverter : JsonConverter<DateTime>
+    {
+        private readonly string[] _formats = new[]
+        {
+            "yyyy-MM-dd HH:mm",           // Formato original: "2025-07-01 00:00"
+            "yyyy-MM-ddTHH:mm:ss",        // Formato ISO: "2025-07-01T00:00:00"
+            "yyyy-MM-ddTHH:mm:ss.fff",    // Con milisegundos
+            "yyyy-MM-ddTHH:mm:ss.fffZ",   // Con UTC
+            "yyyy-MM-dd"                  // Solo fecha
+        };
+
+        public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            var dateString = reader.GetString();
+            
+            foreach (var format in _formats)
+            {
+                if (DateTime.TryParseExact(dateString, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+                {
+                    return date;
+                }
+            }
+            
+            // Fallback a parsing normal
+            if (DateTime.TryParse(dateString, out var fallbackDate))
+            {
+                return fallbackDate;
+            }
+            
+            throw new JsonException($"No se pudo convertir '{dateString}' a DateTime");
+        }
+
+        public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value.ToString("yyyy-MM-ddTHH:mm:ss"));
         }
     }
 }

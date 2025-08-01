@@ -81,7 +81,7 @@ namespace Core.BLL
 
             var facturas = await this.GetByProterty("idProyecto", id);
 
-            result = facturas.Where(x=> x.esAnticipo.HasValue == false || x.esAnticipo.Value == false).Sum(x => x.monto);
+            result = facturas.Where(x => x.esAnticipo.HasValue == false || x.esAnticipo.Value == false).Sum(x => x.monto);
 
 
             return result;
@@ -190,7 +190,7 @@ namespace Core.BLL
             else
             {
                 //retorna todas las facturas que no son de paecia o q tenga el campo nulo
-                result = result.Where(x => x.otPaecia == null || x.otPaecia == false ).ToList();
+                result = result.Where(x => x.otPaecia == null || x.otPaecia == false).ToList();
 
             }
 
@@ -460,8 +460,9 @@ namespace Core.BLL
             datosContableses.Add(new DatosContables() { codigo = "Usuario", valor = user.Nombre });
             if (informacionContable.esAnticipo.HasValue)
             {
-                datosContableses.Add(new DatosContables() { codigo = "EsAnticipo", valor = informacionContable.esAnticipo.Value.ToString() }); 
-            }else
+                datosContableses.Add(new DatosContables() { codigo = "EsAnticipo", valor = informacionContable.esAnticipo.Value.ToString() });
+            }
+            else
             {
                 datosContableses.Add(new DatosContables() { codigo = "EsAnticipo", valor = "False" });
 
@@ -616,7 +617,7 @@ namespace Core.BLL
             {
                 facturaActual.fechaDatosContables = DateTime.Now;
             }
-            
+
 
             //facturaActual.archivoOriginal = facturaActual.archivo;
             facturaActual.archivo = idArchivo;
@@ -627,7 +628,7 @@ namespace Core.BLL
 
             }
 
-            facturaActual.esAnticipo =    informacionContable.esAnticipo;
+            facturaActual.esAnticipo = informacionContable.esAnticipo;
 
             await base.Update(facturaActual);
 
@@ -806,7 +807,7 @@ namespace Core.BLL
 
             //VALIDAR SI LAC FACTURA ES DE BUSETICAS, SE DEBE LLAMAR A APROBAR
 
-           var total = (DateTime.Now - antes).TotalSeconds;
+            var total = (DateTime.Now - antes).TotalSeconds;
 
             if (factura.idProyecto == new Guid("34bf39d1-7ff2-4c79-9a95-e45633dea28c"))
             {
@@ -971,7 +972,7 @@ namespace Core.BLL
 
 
                     ejecutadoProveedor.idProveedor = item.Key.ToString();
-                    ejecutadoProveedor.totalEjecutado = item.Where(x=> x.esAnticipo.HasValue == false || x.esAnticipo == false).Sum(x => x.monto);
+                    ejecutadoProveedor.totalEjecutado = item.Where(x => x.esAnticipo.HasValue == false || x.esAnticipo == false).Sum(x => x.monto);
 
                     result.Add(ejecutadoProveedor);
                 }
@@ -1007,7 +1008,7 @@ namespace Core.BLL
 
                     ejecutadoProveedor.idProveedor = item.Key.idProveedor.ToString();
                     ejecutadoProveedor.Mes = item.Key.fecha;
-                    ejecutadoProveedor.totalEjecutado = item.Where(x=> x.esAnticipo.HasValue == false || x.esAnticipo == false).Sum(x => x.monto);
+                    ejecutadoProveedor.totalEjecutado = item.Where(x => x.esAnticipo.HasValue == false || x.esAnticipo == false).Sum(x => x.monto);
 
                     result.Add(ejecutadoProveedor);
                 }
@@ -1205,7 +1206,7 @@ namespace Core.BLL
             return result;
         }
 
-        
+
 
 
         private async Task<string> ListToString(List<string> aprobador)
@@ -1306,7 +1307,7 @@ namespace Core.BLL
                         }
 
                         item.datosContables = dc.ToArray();
-                    } 
+                    }
                 }
             }
 
@@ -1574,7 +1575,7 @@ namespace Core.BLL
 
 
 
-        
+
 
 
 
@@ -1777,7 +1778,7 @@ namespace Core.BLL
                         // Set position
                         float xPos = (200 * j) + 20;
                         float yPos = 0;
-                        
+
                         canvas.AddImageAt(imageData, xPos, yPos, false);
 
 
@@ -1786,7 +1787,7 @@ namespace Core.BLL
                         var gState = new PdfExtGState().SetFillOpacity(1.0f);
                         canvas.SetExtGState(gState);
                         canvas.SetFillColor(ColorConstants.BLACK);
-                        
+
                         canvas.BeginText()
                             .SetFontAndSize(font, 12)
                             .MoveText(xPos, 20)
@@ -1890,7 +1891,7 @@ namespace Core.BLL
             {
                 var document = new Document(pdfDoc);
                 var rectangle = pdfDoc.GetDefaultPageSize();
-                
+
                 // Insert a new page at the beginning
                 pdfDoc.AddNewPage(1, rectangle);
                 var pageCount = 1;
@@ -1902,7 +1903,7 @@ namespace Core.BLL
                 // Create table
                 Table table = null;
                 DataTable dt = await GetDataTable(aprobacionesMantenimiento, facttemp, ots);
-                
+
                 if (dt != null)
                 {
                     table = new Table(dt.Columns.Count);
@@ -1947,7 +1948,7 @@ namespace Core.BLL
                 {
                     var image = firmas[j];
                     var imageData = ImageDataFactory.Create(image.Value);
-                    
+
                     // Scale image if needed
                     if (imageData.GetHeight() > h)
                     {
@@ -2010,7 +2011,7 @@ namespace Core.BLL
                 // Create table
                 Table table = null;
                 DataTable dt = GetDataTable(datosContables);
-                
+
                 if (dt != null)
                 {
                     table = new Table(dt.Columns.Count);
@@ -2306,8 +2307,9 @@ namespace Core.BLL
 
                 if (reintento == false)
                 {
-                    return   ExtraerPdfConClave(bytesArchivoPdf, true);
-                }else
+                    return ExtraerPdfConClave(bytesArchivoPdf, true);
+                }
+                else
                 {
                     return bytesArchivoPdf;
                 }
@@ -2321,7 +2323,7 @@ namespace Core.BLL
         {
 
             Factura factura = new Factura();
-            
+
             var facturasPorProveedor = await this.GetByProterty(Builders<Factura>.Filter.Eq("idProveedor", idProveedor));
 
             var facturasPorProyecto = facturasPorProveedor.Where(f => f.idProyecto == idProyecto).ToList();
@@ -2329,8 +2331,8 @@ namespace Core.BLL
 
             var totalAnticipos = facturasPorProyecto.Where(x => x.esAnticipo.HasValue && x.esAnticipo == true).Sum(x => x.monto);
 
-            var totalDescuentosAnticipos = from f in facturasPorProyecto.Where(x=> x.datosContables!= null)
-                                           from dc in f.datosContables                                           
+            var totalDescuentosAnticipos = from f in facturasPorProyecto.Where(x => x.datosContables != null)
+                                           from dc in f.datosContables
                                            where dc.codigo == "Anticipo "
                                            select double.Parse(dc.valor);
             var sumAnticipos = totalDescuentosAnticipos.Sum();
@@ -2338,7 +2340,7 @@ namespace Core.BLL
             var totalAnticiposPendientes = totalAnticipos - sumAnticipos;
 
             return totalAnticipos > sumAnticipos;
-            
+
         }
 
 

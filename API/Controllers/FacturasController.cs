@@ -231,6 +231,17 @@ namespace API.Controllers
         [Route("datosContables/{idFactura}")]
         public async Task<bool> GetFacturasFiltered([FromRoute] Guid idFactura, [FromBody] InformacionContable informacionContable)
         {
+            Console.WriteLine($"DEBUG: informacionContable is null: {informacionContable == null}");
+            
+            if (informacionContable == null)
+            {
+                Console.WriteLine("DEBUG: informacionContable es null");
+                throw new ArgumentNullException(nameof(informacionContable), "InformacionContable es null - problema de deserialización JSON");
+            }
+            
+            Console.WriteLine($"DEBUG: informacionContable.usuario: {informacionContable.usuario}");
+            Console.WriteLine($"DEBUG: informacionContable.Base: {informacionContable.Base}");
+            
             DatosContables[] datosContables = informacionContable.ToDatosContables();
             var result = await this._bll.DatosContables(idFactura, datosContables.ToList(), informacionContable.usuario, informacionContable);
 
@@ -262,6 +273,20 @@ namespace API.Controllers
         [Route("filtrado")]
         public async Task<List<Factura>> GetFacturasFiltered([FromBody] FiltroFacturas param)
         {
+            Console.WriteLine($"DEBUG: GetFacturasFiltered - param is null: {param == null}");
+            
+            if (param == null)
+            {
+                Console.WriteLine("DEBUG: param es null - verificando deserialización");
+                throw new ArgumentNullException(nameof(param), "El parámetro FiltroFacturas es null - problema de deserialización JSON");
+            }
+            
+            Console.WriteLine($"DEBUG: param.inicio: {param.inicio}");
+            Console.WriteLine($"DEBUG: param.fin: {param.fin}");
+            Console.WriteLine($"DEBUG: param.proyectos is null: {param.proyectos == null}");
+            Console.WriteLine($"DEBUG: param.proveedor is null: {param.proveedor == null}");
+            Console.WriteLine($"DEBUG: param.estado: {param.estado}");
+            
             var result = await this._bll.FacturasFiltradas(param);
             return result.OrderBy(x => x.fecha).ToList();
         }
