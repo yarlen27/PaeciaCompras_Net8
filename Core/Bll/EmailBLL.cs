@@ -315,30 +315,39 @@ namespace Core.BLL
 
         public async Task EmailNuevaOrden(Guid entityId)
         {
-            var ordenDeCompra = this._ordenCompraBLL.GetById(entityId).Result;
-
-            if (ordenDeCompra.pedidoMaterial)
+            var logPath = "/tmp/email_debug.log";
+            try
             {
-                var detalle = ordenDeCompra.detalle;
+                await File.AppendAllTextAsync(logPath, $"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] EmailNuevaOrden iniciado para OrdenId: {entityId}\n");
+                
+                var ordenDeCompra = this._ordenCompraBLL.GetById(entityId).Result;
+                await File.AppendAllTextAsync(logPath, $"Orden encontrada: {ordenDeCompra?.id}, PedidoMaterial: {ordenDeCompra?.pedidoMaterial}\n");
 
-                foreach (var item in detalle)
+                if (ordenDeCompra.pedidoMaterial)
                 {
+                    var detalle = ordenDeCompra.detalle;
+                    await File.AppendAllTextAsync(logPath, $"Procesando pedido material con {detalle?.Count()} items\n");
 
-
-                    await this.EnviarOrdenProveedor(item, ordenDeCompra);
-
+                    foreach (var item in detalle)
+                    {
+                        await File.AppendAllTextAsync(logPath, $"Procesando item para proveedor: {item.proveedor}\n");
+                        await this.EnviarOrdenProveedor(item, ordenDeCompra);
+                    }
                 }
-            }
-            else
-            {
+                else
+                {
+                    await File.AppendAllTextAsync(logPath, "Procesando pedido de servicio\n");
 
                 var detalle = ordenDeCompra.servicio;
-
-                // await this.EnviarOrdenServicioProveedor(detalle, ordenDeCompra);
-
-
+                    await File.AppendAllTextAsync(logPath, $"Servicio encontrado, pendiente de implementación\\n");
+                    // await this.EnviarOrdenServicioProveedor(detalle, ordenDeCompra);
+                }
             }
-
+            catch (Exception ex)
+            {
+                await File.AppendAllTextAsync(logPath, $"ERROR en EmailNuevaOrden: {ex.Message}\\nStackTrace: {ex.StackTrace}\\n");
+                throw;
+            }
         }
 
 
@@ -1066,9 +1075,18 @@ namespace Core.BLL
 
         private async Task EnviarOrdenProveedor(OrdenCompraMaterialDetalle item, OrdenCompra ordenCompra)
         {
-            var proveedor = await this._proveedorBLL.GetById(item.proveedor);
-            var proyecto = await this.proyectoBLL.GetById(ordenCompra.proyecto);
-            var direcciones = proveedor.email.Split(';').ToList();
+            var logPath = "/tmp/email_debug.log";
+            try
+            {
+                await File.AppendAllTextAsync(logPath, $"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] EnviarOrdenProveedor iniciado\n");
+                
+                var proveedor = await this._proveedorBLL.GetById(item.proveedor);
+                await File.AppendAllTextAsync(logPath, $"Proveedor: {proveedor?.nombre}, Email: {proveedor?.email}\n");
+                
+                var proyecto = await this.proyectoBLL.GetById(ordenCompra.proyecto);
+                await File.AppendAllTextAsync(logPath, $"Proyecto: {proyecto?.nombre}\n");
+                
+                var direcciones = proveedor.email.Split(';').ToList();
             if (proyecto.emailOrdenes != string.Empty && proyecto.emailOrdenes != null)
             {
                 direcciones.AddRange(proyecto.emailOrdenes.Split(';').ToList());
@@ -1101,26 +1119,34 @@ namespace Core.BLL
 
             direcciones = (from a in direcciones
                            select a.ToLower()).Distinct().ToList();
+            
+            await File.AppendAllTextAsync(logPath, $"Direcciones de destino: {string.Join(", ", direcciones)}\n");
 
             foreach (var direccion in direcciones)
             {
-                tos.Add(new EmailAddress(direccion));
-
+                if (!string.IsNullOrWhiteSpace(direccion))
+                {
+                    tos.Add(new EmailAddress(direccion));
+                    await File.AppendAllTextAsync(logPath, $"Agregando destinatario: {direccion}\n");
+                }
             }
-
-
-
-            try
-            {
-
-
 
                 var emailText = template;
                 var cultureInfo = new CultureInfo("es-CO");
                 emailText = emailText.Replace("#TOTAL#", "$" + total.ToString("#,##0.00", cultureInfo));
 
                 var plainTextContent = Regex.Replace(emailText, "<[^>]*>", "");
+                await File.AppendAllTextAsync(logPath, $"Total destinatarios: {tos.Count}\n");
+                
+                if (tos.Count == 0)
+                {
+                    await File.AppendAllTextAsync(logPath, "ERROR: No hay destinatarios válidos para el email\n");
+                    throw new Exception("No hay destinatarios válidos para el email");
+                }
+                
                 var msg = MailHelper.CreateSingleEmailToMultipleRecipients(from, tos, $"NOTIFICACIÓN - NUEVA ORDEN DE COMPRA No:{ordenCompra.consecutivo}", plainTextContent, emailText, true);
+                
+                await File.AppendAllTextAsync(logPath, $"Mensaje creado para orden: {ordenCompra.consecutivo}\n");
 
 
 
@@ -1155,14 +1181,20 @@ namespace Core.BLL
                 msg.AddAttachment($"OrdenDeCompra - No {ordenCompra.consecutivo}.pdf", this.ConvertToBase64(report.Content));
 
                 var response = await client.SendEmailAsync(msg);
+                await File.AppendAllTextAsync(logPath, $"Email enviado. Response StatusCode: {response.StatusCode}, IsSuccessStatusCode: {response.IsSuccessStatusCode}\n");
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var body = await response.Body.ReadAsStringAsync();
+                    await File.AppendAllTextAsync(logPath, $"SendGrid Response Body: {body}\n");
+                }
             }
             catch (Exception ex)
             {
+                await File.AppendAllTextAsync(logPath, $"ERROR en EnviarOrdenProveedor: {ex.Message}\nStackTrace: {ex.StackTrace}\nInnerException: {ex.InnerException?.Message}\n");
                 throw;
             }
-
         }
-
 
         private async Task<byte[]> PdfOrdenProveedor(OrdenCompraMaterialDetalle item, OrdenCompra ordenCompra)
         {
@@ -1543,7 +1575,16 @@ namespace Core.BLL
 
         private static SendGridClient BuildSendGridClient()
         {
+            var logPath = "/tmp/email_debug.log";
             var apiKey = Environment.GetEnvironmentVariable("SENDGRID_API_KEY") ?? "YOUR_SENDGRID_API_KEY_HERE";
+            
+            // Log API key info (solo los primeros caracteres por seguridad)
+            var keyInfo = string.IsNullOrEmpty(apiKey) ? "EMPTY" : 
+                         apiKey == "YOUR_SENDGRID_API_KEY_HERE" ? "DEFAULT_KEY" : 
+                         $"Key starts with: {apiKey.Substring(0, Math.Min(10, apiKey.Length))}...";
+            
+            File.AppendAllTextAsync(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] SendGrid API Key: {keyInfo}\n").Wait();
+            
             var client = new SendGridClient(apiKey);
             return client;
         }
