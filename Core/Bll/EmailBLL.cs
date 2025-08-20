@@ -24,6 +24,7 @@ using jsreport.Types;
 using jsreport.Client;
 // using Microsoft.AspNetCore.Mvc.Formatters.Internal; // Removed in .NET 8
 using Newtonsoft.Json;
+using System.Globalization;
 
 namespace Core.BLL
 {
@@ -1025,7 +1026,7 @@ namespace Core.BLL
         private async Task<string> OrdenServicioTemplate(PedidoServicioDetalle detalle, OrdenCompra ordenCompra)
         {
             //var htmlTemplate = File.ReadAllText(@"\EmailTemplates\nuevaOrden");
-
+            var cultureInfo = new CultureInfo("es-CO");
             var plantillaCuerpo = await ObtenerPlantilla("Core.EmailTemplates.nuevaOrdenServicio.html");
             var plantillaDetalle = await ObtenerPlantilla("Core.EmailTemplates.NuevaOrdenServicioItem.html");
 
@@ -1044,8 +1045,8 @@ namespace Core.BLL
                 plantillaDetalle = ReemplazarToken("#Actividad", item.actividades, plantillaDetalle);
                 plantillaDetalle = ReemplazarToken("#Unidad", item.unidad, plantillaDetalle);
                 plantillaDetalle = ReemplazarToken("#Cantidad", item.cantidad, plantillaDetalle);
-                plantillaDetalle = ReemplazarToken("#ValorUnidad", item.valorUnidad, plantillaDetalle);
-                plantillaDetalle = ReemplazarToken("#ValorTotal", item.valorTotal, plantillaDetalle);
+                plantillaDetalle = ReemplazarToken("#ValorUnidad", "$" + Convert.ToDecimal(item.valorUnidad).ToString("#,##0.00", cultureInfo), plantillaDetalle);
+                plantillaDetalle = ReemplazarToken("#ValorTotal", "$" + Convert.ToDecimal(item.valorTotal).ToString("#,##0.00", cultureInfo), plantillaDetalle);
             }
 
             var proyecto = this.proyectoBLL.GetById(ordenCompra.proyecto).Result.nombre;
@@ -1057,7 +1058,7 @@ namespace Core.BLL
             plantillaCuerpo = plantillaCuerpo.Replace("#OBJETO", ordenCompra.servicio.objeto);
             plantillaCuerpo = plantillaCuerpo.Replace("#ALCANCE", ordenCompra.servicio.alcance);
             plantillaCuerpo = plantillaCuerpo.Replace("#PLAZO", ordenCompra.servicio.plazo);
-            plantillaCuerpo = plantillaCuerpo.Replace("#MONTOTOTAL", ordenCompra.servicio.montoTotal.ToString("0.0"));
+            plantillaCuerpo = plantillaCuerpo.Replace("#MONTOTOTAL", "$" + ordenCompra.servicio.montoTotal.ToString("#,##0.00", cultureInfo));
             plantillaCuerpo = plantillaCuerpo.Replace("#OBSERVACIONES", ordenCompra.servicio.observaciones);
 
             return plantillaCuerpo;
@@ -1115,7 +1116,8 @@ namespace Core.BLL
 
 
                 var emailText = template;
-                emailText = emailText.Replace("#TOTAL#", total.ToString("$0.0"));
+                var cultureInfo = new CultureInfo("es-CO");
+                emailText = emailText.Replace("#TOTAL#", "$" + total.ToString("#,##0.00", cultureInfo));
 
                 var plainTextContent = Regex.Replace(emailText, "<[^>]*>", "");
                 var msg = MailHelper.CreateSingleEmailToMultipleRecipients(from, tos, $"NOTIFICACIÓN - NUEVA ORDEN DE COMPRA No:{ordenCompra.consecutivo}", plainTextContent, emailText, true);
@@ -1164,6 +1166,7 @@ namespace Core.BLL
 
         private async Task<byte[]> PdfOrdenProveedor(OrdenCompraMaterialDetalle item, OrdenCompra ordenCompra)
         {
+            var cultureInfo = new CultureInfo("es-CO");
             var proveedor = await this._proveedorBLL.GetById(item.proveedor);
             var proyecto = await this.proyectoBLL.GetById(ordenCompra.proyecto);
 
@@ -1190,7 +1193,7 @@ namespace Core.BLL
 
 
                 var emailText = template;
-                emailText = emailText.Replace("#TOTAL#", "$" + total.ToString("#,##0.00"));
+                emailText = emailText.Replace("#TOTAL#", "$" + total.ToString("#,##0.00", cultureInfo));
 
                 var plainTextContent = Regex.Replace(emailText, "<[^>]*>", "");
 
@@ -1304,7 +1307,7 @@ namespace Core.BLL
         private async Task<string> OrdenMaterialesTemplate(OrdenCompraMaterialDetalle detalle, OrdenCompra ordenCompra)
         {
             //var htmlTemplate = File.ReadAllText(@"\EmailTemplates\nuevaOrden");
-
+            var cultureInfo = new CultureInfo("es-CO");
             var plantillaCuerpo = await ObtenerPlantilla("Core.EmailTemplates.nuevaOrden.html");
             var plantillaDetalle = string.Empty;
 
@@ -1340,8 +1343,8 @@ namespace Core.BLL
                 }
 
 
-                itemPlantillaDetalle = ReemplazarToken("#ValorUnitario", item.valorUnitario.ToString("#,##0.00"), itemPlantillaDetalle);
-                itemPlantillaDetalle = ReemplazarToken("#ValorTotal", (item.valorUnitario * item.cantidad).ToString("#,##0.00"), itemPlantillaDetalle);
+                itemPlantillaDetalle = ReemplazarToken("#ValorUnitario", "$" + item.valorUnitario.ToString("#,##0.00", cultureInfo), itemPlantillaDetalle);
+                itemPlantillaDetalle = ReemplazarToken("#ValorTotal", "$" + (item.valorUnitario * item.cantidad).ToString("#,##0.00", cultureInfo), itemPlantillaDetalle);
                 plantillaDetalle += itemPlantillaDetalle;
             }
 
