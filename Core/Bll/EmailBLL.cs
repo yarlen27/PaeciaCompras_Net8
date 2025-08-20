@@ -1125,7 +1125,7 @@ namespace Core.BLL
 
 
                 
-                var rs = new ReportingService("http://localhost:39280/");
+                var rs = new ReportingService("http://paecia.com:39280/");
 
 
                 var chromeTemplate = new Template()
@@ -1200,7 +1200,7 @@ namespace Core.BLL
 
 
                
-                var rs = new ReportingService("http://localhost:39280/");
+                var rs = new ReportingService("http://paecia.com:39280/");
 
 
                 var chromeTemplate = new Template()
