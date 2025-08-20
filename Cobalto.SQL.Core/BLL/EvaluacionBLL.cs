@@ -95,7 +95,7 @@ namespace Cobalto.SQL.Core.BLL
 
                 if (item.EsSeleccion == true)
                 {
-                    registro.TipoEvaluacion = "SELECCI�N";
+                    registro.TipoEvaluacion = "SELECCI�N";
                 }
                 else
                 {
@@ -172,7 +172,28 @@ namespace Cobalto.SQL.Core.BLL
 
 
 
-                var proveedorSQL = this._proveedorBLL.Filtrar(new { IdCompras = proveedor }).FirstOrDefault();
+                var todosProveedores = this._proveedorBLL.Filtrar(new { IdCompras = proveedor });
+                
+                // DEBUG: Log de proveedores encontrados
+                var logContent = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - DEBUG ReporteConsolidado - IdCompras: {proveedor}, Proveedores encontrados: {todosProveedores.Count()}\n";
+                
+                foreach (var p in todosProveedores)
+                {
+                    logContent += $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - DEBUG - Proveedor ID: {p.Id}, Nombre: {p.Nombre}, Borrado: {p.Borrado}\n";
+                }
+                
+                var proveedorSQL = todosProveedores.Where(x => !x.Borrado).FirstOrDefault();
+                
+                if (proveedorSQL != null)
+                {
+                    logContent += $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - DEBUG - Proveedor seleccionado: ID {proveedorSQL.Id}, Nombre: {proveedorSQL.Nombre}\n";
+                }
+                else
+                {
+                    logContent += $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - DEBUG - No se encontró proveedor válido (no borrado) para IdCompras: {proveedor}\n";
+                }
+                
+                System.IO.File.WriteAllText("/app/debug_evaluacion.txt", logContent);
 
                 if (proveedorSQL == null)
                 {
