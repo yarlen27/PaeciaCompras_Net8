@@ -1124,10 +1124,14 @@ namespace Core.BLL
 
             foreach (var direccion in direcciones)
             {
-                if (!string.IsNullOrWhiteSpace(direccion))
+                if (!string.IsNullOrWhiteSpace(direccion) && IsValidEmail(direccion))
                 {
                     tos.Add(new EmailAddress(direccion));
-                    await File.AppendAllTextAsync(logPath, $"Agregando destinatario: {direccion}\n");
+                    await File.AppendAllTextAsync(logPath, $"Agregando destinatario válido: {direccion}\n");
+                }
+                else if (!string.IsNullOrWhiteSpace(direccion))
+                {
+                    await File.AppendAllTextAsync(logPath, $"Omitiendo dirección inválida: {direccion}\n");
                 }
             }
 
@@ -1405,10 +1409,47 @@ namespace Core.BLL
             plantillaCuerpo = plantillaCuerpo.Replace("#DIRECCIONPROYECTO", ordenCompra.direccionEntrega);
             plantillaCuerpo = plantillaCuerpo.Replace("#EMPRESA", proyecto.empresa);
             plantillaCuerpo = plantillaCuerpo.Replace("#NITEMPRESA", proyecto.nit);
-
-
+            
+            // Agregar observación general si existe - formato de dos columnas como el resto del documento
+            if (!string.IsNullOrEmpty(ordenCompra.observacionGeneral))
+            {
+                var observacionHtml = $@"
+                <tr>
+                    <td class='td-padding' align='left'
+                        style='font-family: ""Roboto Mono"", monospace; color: #212121!important; font-size: 24px; line-height: 30px; padding-top: 30px; padding-left: 18px!important; padding-right: 18px!important; padding-bottom: 18px!important; mso-line-height-rule: exactly; mso-padding-alt: 18px 18px 18px 13px;'>
+                        OBSERVACIONES GENERALES:
+                    </td>
+                    
+                    <td class='td-padding' align='left'
+                        style='font-family: ""Roboto Mono"", monospace; color: #212121!important; font-size: 24px; line-height: 30px; padding-top: 30px; padding-left: 18px!important; padding-right: 18px!important; padding-bottom: 18px!important; mso-line-height-rule: exactly; mso-padding-alt: 18px 18px 18px 13px;'>
+                        {ordenCompra.observacionGeneral}
+                    </td>
+                </tr>";
+                plantillaCuerpo = plantillaCuerpo.Replace("#OBSERVACIONGENERAL#", observacionHtml);
+            }
+            else
+            {
+                plantillaCuerpo = plantillaCuerpo.Replace("#OBSERVACIONGENERAL#", "");
+            }
 
             return plantillaCuerpo;
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return false;
+
+            try
+            {
+                // Validación básica de formato de email
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email && email.Contains("@") && email.Contains(".");
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private string ReemplazarToken(string token, string valor, string plantilla)

@@ -29,5 +29,9 @@ namespace Core.Models
         public string estadoFacturas { get; set; }
         public string contacto { get; set; }
         public bool pendiente { get; set; }
+        
+        // Campo opcional para observaciones generales de la orden
+        // No afecta documentos existentes en MongoDB (será null en documentos antiguos)
+        public string observacionGeneral { get; set; }
     }
 }

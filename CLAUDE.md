@@ -30,3 +30,9 @@
 - Username: `juan.gaviria`
 - Password: `Compras2022*`
 - Use for generating JWT tokens locally
+
+## Email Configuration
+- SendGrid API Key: Configured in server .env file
+- Email service: Fully configured and working
+- jsreport URL: `http://paecia.com:39280/` (for PDF generation)
+- Email logs location: `/tmp/email_debug.log` (inside Docker container)
