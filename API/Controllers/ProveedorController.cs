@@ -115,6 +115,32 @@ namespace API.Controllers
             return await this.documentoSagrilafBLL.SagrilafValido(id);
         }
 
+        [HttpGet("PausarSagrilaft/{id}")]
+        public async Task<bool> PausarSagrilaft([FromRoute] Guid id)
+        {
+            var proveedor = await this._bll.GetById(id);
+            if (proveedor != null)
+            {
+                proveedor.SagrilaftEnPausa = true;
+                await this._bll.Update(proveedor);
+                return true;
+            }
+            return false;
+        }
+
+        [HttpGet("ReanudarSagrilaft/{id}")]
+        public async Task<bool> ReanudarSagrilaft([FromRoute] Guid id)
+        {
+            var proveedor = await this._bll.GetById(id);
+            if (proveedor != null)
+            {
+                proveedor.SagrilaftEnPausa = false;
+                await this._bll.Update(proveedor);
+                return true;
+            }
+            return false;
+        }
+
         
 
 

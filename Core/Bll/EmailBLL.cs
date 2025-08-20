@@ -37,7 +37,7 @@ namespace Core.BLL
 
         private ProyectoBLL proyectoBLL;
 
-
+        private IConfiguration _configuration;
         private PedidoServicioBLL pedidoServicioBLL;
         private OrdenCompraBLL _ordenCompraBLL;
         private ProveedorBLL _proveedorBLL;
@@ -61,6 +61,7 @@ namespace Core.BLL
              IFileProvider fileProvider
             ) : base(configuration, httpContext)
         {
+            this._configuration = configuration;
             this.pedidoMaterialBLL = pedidoMaterialBLL;
             this.proyectoBLL = proyectoBLL;
 
@@ -1614,10 +1615,13 @@ namespace Core.BLL
             }
         }
 
-        private static SendGridClient BuildSendGridClient()
+        private SendGridClient BuildSendGridClient()
         {
             var logPath = "/tmp/email_debug.log";
-            var apiKey = Environment.GetEnvironmentVariable("SENDGRID_API_KEY") ?? "YOUR_SENDGRID_API_KEY_HERE";
+            // Primero intenta obtener de appsettings.json, luego de variables de entorno
+            var apiKey = _configuration["SendGrid:ApiKey"] ?? 
+                        Environment.GetEnvironmentVariable("SENDGRID_API_KEY") ?? 
+                        "YOUR_SENDGRID_API_KEY_HERE";
             
             // Log API key info (solo los primeros caracteres por seguridad)
             var keyInfo = string.IsNullOrEmpty(apiKey) ? "EMPTY" : 

@@ -172,6 +172,12 @@ namespace Cobalto.SQL.Core.BLL
 
             }
 
+            // Si Sagrilaft está en pausa, retornar "No requiere"
+            if (proveedor.SagrilaftEnPausa == true)
+            {
+                return "No requiere";
+            }
+
             if (proveedor.nit == "900931310")
             {
                 return "Tiene";

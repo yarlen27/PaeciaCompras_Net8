@@ -40,6 +40,7 @@ namespace Core.Models
 
         //Sagrilaf
         public string ClasificacionSagrilaf { get; set; }
+        public bool? SagrilaftEnPausa { get; set; }
 
 
         //Lista documentos sagrilaf 
