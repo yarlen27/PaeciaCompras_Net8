@@ -1,0 +1,11 @@
+{
+  "numeroPedido": "Carga Masiva",
+  "idInsumo": "66181256-df87-4237-b3e3-6d8c51de81b0",
+  "idProyecto": "da5d1f87-5cc4-43e3-8ee1-743bc970ac71",
+  "idProveedor": "00000000-0000-0000-0000-000000000000",
+  "valorUnitario": 45386,
+  "cantidad": 257,
+  "factura": 0,
+  "observacion": "CARGA MASIVA",
+  "usuario": "5c465eac1e87b13640fc4172"
+}

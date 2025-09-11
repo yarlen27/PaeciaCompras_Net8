@@ -1998,11 +1998,7 @@ namespace Core.BLL
             using (var writer = new PdfWriter(fs))
             using (var pdfDoc = new PdfDocument(reader, writer))
             {
-                var document = new Document(pdfDoc);
-                var pageCount = 1;
-
-                // Get page rectangle
-                var rectangle = pdfDoc.GetPage(pageCount).GetPageSize();
+                var numPages = pdfDoc.GetNumberOfPages();
 
                 // Create fonts
                 var normalFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
@@ -2015,14 +2011,14 @@ namespace Core.BLL
                 if (dt != null)
                 {
                     table = new Table(dt.Columns.Count);
-                    table.SetWidth(UnitValue.CreatePercentValue(100));
+                    table.SetWidth(UnitValue.CreatePercentValue(50)); // Ajustar ancho para que no interfiera
 
                     // Add header cells
-                    var headerCell1 = new Cell().Add(new Paragraph("Concepto").SetFont(boldFont).SetFontSize(14));
+                    var headerCell1 = new Cell().Add(new Paragraph("Concepto").SetFont(boldFont).SetFontSize(10));
                     headerCell1.SetBackgroundColor(ColorConstants.WHITE);
                     table.AddCell(headerCell1);
 
-                    var headerCell2 = new Cell().Add(new Paragraph("Valor").SetFont(normalFont).SetFontSize(7));
+                    var headerCell2 = new Cell().Add(new Paragraph("Valor").SetFont(boldFont).SetFontSize(10));
                     headerCell2.SetBackgroundColor(ColorConstants.WHITE);
                     table.AddCell(headerCell2);
 
@@ -2036,15 +2032,15 @@ namespace Core.BLL
 
                             if (rows == 14 && item.noteCredito == false)
                             {
-                                cell.Add(new Paragraph(cellText).SetFont(boldFont).SetFontSize(14));
+                                cell.Add(new Paragraph(cellText).SetFont(boldFont).SetFontSize(12));
                             }
                             else if (rows == 14 && item.noteCredito == true)
                             {
-                                cell.Add(new Paragraph("- " + cellText).SetFont(boldFont).SetFontSize(14).SetFontColor(ColorConstants.RED));
+                                cell.Add(new Paragraph("- " + cellText).SetFont(boldFont).SetFontSize(12).SetFontColor(ColorConstants.RED));
                             }
                             else
                             {
-                                cell.Add(new Paragraph(cellText).SetFont(normalFont).SetFontSize(7));
+                                cell.Add(new Paragraph(cellText).SetFont(normalFont).SetFontSize(8));
                             }
 
                             cell.SetBackgroundColor(ColorConstants.WHITE);
@@ -2052,11 +2048,22 @@ namespace Core.BLL
                         }
                     }
 
-                    // Position and add table to the document
-                    table.SetFixedPosition(0, -200, rectangle.GetWidth() - 336);
+                    // Add table to first page using Canvas (like Program.cs example)
+                    var pdfPage = pdfDoc.GetPage(1);
+                    var pageSize = pdfPage.GetPageSize();
+                    var canvas = new iText.Layout.Canvas(new PdfCanvas(pdfPage), pageSize);
+                    
+                    // Position table at bottom right corner to avoid interfering with content
+                    float tableX = pageSize.GetWidth() - 300; // 300 units from right edge
+                    float tableY = 50; // 50 units from bottom
+                    
+                    table.SetFixedPosition(tableX, tableY, 250); // width 250 units
+                    canvas.Add(table);
+                    
+                    canvas.Close();
                 }
 
-                document.Close();
+                pdfDoc.Close();
                 return fs;
             }
         }
