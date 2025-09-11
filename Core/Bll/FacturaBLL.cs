@@ -2016,14 +2016,14 @@ namespace Core.BLL
                 if (dt != null)
                 {
                     table = new Table(dt.Columns.Count);
-                    table.SetWidth(UnitValue.CreatePercentValue(50)); // Ajustar ancho para que no interfiera
+                    table.SetWidth(UnitValue.CreatePercentValue(30)); // Reducir ancho para evitar conflicto con firmas
 
                     // Add header cells
-                    var headerCell1 = new Cell().Add(new Paragraph("Concepto").SetFont(boldFont).SetFontSize(10));
+                    var headerCell1 = new Cell().Add(new Paragraph("Concepto").SetFont(boldFont).SetFontSize(8));
                     headerCell1.SetBackgroundColor(ColorConstants.WHITE);
                     table.AddCell(headerCell1);
 
-                    var headerCell2 = new Cell().Add(new Paragraph("Valor").SetFont(boldFont).SetFontSize(10));
+                    var headerCell2 = new Cell().Add(new Paragraph("Valor").SetFont(boldFont).SetFontSize(8));
                     headerCell2.SetBackgroundColor(ColorConstants.WHITE);
                     table.AddCell(headerCell2);
 
@@ -2037,15 +2037,15 @@ namespace Core.BLL
 
                             if (rows == 14 && item.noteCredito == false)
                             {
-                                cell.Add(new Paragraph(cellText).SetFont(boldFont).SetFontSize(12));
+                                cell.Add(new Paragraph(cellText).SetFont(boldFont).SetFontSize(9));
                             }
                             else if (rows == 14 && item.noteCredito == true)
                             {
-                                cell.Add(new Paragraph("- " + cellText).SetFont(boldFont).SetFontSize(12).SetFontColor(ColorConstants.RED));
+                                cell.Add(new Paragraph("- " + cellText).SetFont(boldFont).SetFontSize(9).SetFontColor(ColorConstants.RED));
                             }
                             else
                             {
-                                cell.Add(new Paragraph(cellText).SetFont(normalFont).SetFontSize(8));
+                                cell.Add(new Paragraph(cellText).SetFont(normalFont).SetFontSize(7));
                             }
 
                             cell.SetBackgroundColor(ColorConstants.WHITE);
@@ -2058,11 +2058,11 @@ namespace Core.BLL
                     var pageSize = pdfPage.GetPageSize();
                     var canvas = new iText.Layout.Canvas(new PdfCanvas(pdfPage), pageSize);
                     
-                    // Position table at bottom left corner like in the reference image
+                    // Position table higher to avoid conflict with signatures
                     float tableX = 50; // 50 units from left edge
-                    float tableY = 50; // 50 units from bottom
+                    float tableY = 150; // 150 units from bottom (higher than signatures)
                     
-                    table.SetFixedPosition(tableX, tableY, 250); // width 250 units
+                    table.SetFixedPosition(tableX, tableY, 180); // width 180 units (smaller)
                     canvas.Add(table);
                     
                     canvas.Close();
