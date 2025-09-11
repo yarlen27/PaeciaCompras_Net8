@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using AspNetCore.Identity.MongoDB;
 using Cobalto.SQL.Core;
 using Core;
+using Core.Models;
 using Core.Utils;
 using jsreport.AspNetCore;
 using jsreport.Binary;
@@ -42,7 +43,7 @@ namespace API
             var culture = new CultureInfo("es-CO"); // O la cultura que usa tu servidor IIS
             CultureInfo.DefaultThreadCurrentCulture = culture;
             CultureInfo.DefaultThreadCurrentUICulture = culture;
-            
+
             services.Configure<MongoDbSettings>(Configuration.GetSection("MongoDb"));
             services.AddBLL(Configuration);
             services.AddSQLBLL(Configuration);
@@ -81,16 +82,18 @@ namespace API
                 {
                     // Configurar para aceptar formato de fecha personalizado
                     options.JsonSerializerOptions.Converters.Add(new FlexibleDateTimeConverter());
-                    
+                    options.JsonSerializerOptions.Converters.Add(new FlexibleDoubleConverter());
+                    options.JsonSerializerOptions.Converters.Add(new FlexibleInformacionContableConverter());
+
                     // Configurar para mayor flexibilidad como Newtonsoft.Json
                     options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
                 });
 
 
 
-            var allProviderTypes =  Assembly.Load(System.Reflection.Assembly.GetExecutingAssembly().GetReferencedAssemblies().FirstOrDefault(x => x.Name == "Cobalto.SQL.Core"))
+            var allProviderTypes = Assembly.Load(System.Reflection.Assembly.GetExecutingAssembly().GetReferencedAssemblies().FirstOrDefault(x => x.Name == "Cobalto.SQL.Core"))
                 .GetTypes().Where(t => t.Namespace != null && t.Namespace.Contains("Cobalto.SQL.Core.BLL")); ;
-                                       
+
 
             foreach (var intfc in allProviderTypes)
             {
@@ -142,7 +145,7 @@ namespace API
                 }
             });
 
-           
+
             app.UseDeveloperExceptionPage();
 
             app.UseSwagger();
@@ -179,7 +182,7 @@ namespace API
         public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var dateString = reader.GetString();
-            
+
             foreach (var format in _formats)
             {
                 if (DateTime.TryParseExact(dateString, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
@@ -187,13 +190,13 @@ namespace API
                     return date;
                 }
             }
-            
+
             // Fallback a parsing normal
             if (DateTime.TryParse(dateString, out var fallbackDate))
             {
                 return fallbackDate;
             }
-            
+
             throw new JsonException($"No se pudo convertir '{dateString}' a DateTime");
         }
 
@@ -202,4 +205,167 @@ namespace API
             writer.WriteStringValue(value.ToString("yyyy-MM-ddTHH:mm:ss"));
         }
     }
+    
+    public class FlexibleDoubleConverter : JsonConverter<double>
+    {
+
+
+        public override double Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.String)
+            {
+                var str = reader.GetString()?.Replace(",", "."); // cambiar coma por punto
+                if (double.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var val))
+                    return val;
+            }
+            else if (reader.TokenType == JsonTokenType.Number)
+            {
+                return reader.GetDouble();
+            }
+
+            return 0.0;
+        }
+
+        public override void Write(Utf8JsonWriter writer, double value, JsonSerializerOptions options)
+        {
+            writer.WriteNumberValue(value);
+        }
+    }
+
+    public class FlexibleInformacionContableConverter : JsonConverter<InformacionContable>
+    {
+        public override InformacionContable Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            var informacion = new InformacionContable();
+
+            if (reader.TokenType != JsonTokenType.StartObject)
+            {
+                throw new JsonException("Se esperaba un objeto JSON");
+            }
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                {
+                    return informacion;
+                }
+
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                {
+                    throw new JsonException("Se esperaba un nombre de propiedad");
+                }
+
+                var propertyName = reader.GetString();
+                reader.Read();
+
+                switch (propertyName?.ToLower())
+                {
+                    case "base":
+                        informacion.Base = ReadFlexibleDouble(ref reader);
+                        break;
+                    case "iva":
+                        informacion.Iva = ReadFlexibleDouble(ref reader);
+                        break;
+                    case "tarifa":
+                        informacion.Tarifa = ReadFlexibleDouble(ref reader);
+                        break;
+                    case "retfte":
+                        informacion.RetFte = ReadFlexibleDouble(ref reader);
+                        break;
+                    case "base2":
+                        informacion.Base2 = ReadFlexibleDouble(ref reader);
+                        break;
+                    case "tarifa2":
+                        informacion.Tarifa2 = ReadFlexibleDouble(ref reader);
+                        break;
+                    case "retfte2":
+                        informacion.RetFte2 = ReadFlexibleDouble(ref reader);
+                        break;
+                    case "retgarantia":
+                        informacion.RetGarantia = ReadFlexibleDouble(ref reader);
+                        break;
+                    case "retgtia":
+                        informacion.RetGtia = ReadFlexibleDouble(ref reader);
+                        break;
+                    case "porcentajeica":
+                        informacion.PorcentajeICA = ReadFlexibleDouble(ref reader);
+                        break;
+                    case "valorica":
+                        informacion.ValorICA = ReadFlexibleDouble(ref reader);
+                        break;
+                    case "anticipo":
+                        informacion.Anticipo = ReadFlexibleDouble(ref reader);
+                        break;
+                    case "otrosdescuentos":
+                        informacion.OtrosDescuentos = ReadFlexibleDouble(ref reader);
+                        break;
+                    case "apagar":
+                        informacion.APagar = ReadFlexibleDouble(ref reader);
+                        break;
+                    case "usuario":
+                        informacion.usuario = reader.GetString();
+                        break;
+                    case "esdocumentosoporte":
+                        informacion.EsDocumentoSoporte = reader.GetBoolean();
+                        break;
+                    case "esanticipo":
+                        informacion.esAnticipo = reader.TokenType == JsonTokenType.Null ? (bool?)null : reader.GetBoolean();
+                        break;
+                    default:
+                        // Ignorar propiedades desconocidas
+                        reader.Skip();
+                        break;
+                }
+            }
+
+            return informacion;
+        }
+
+        private double ReadFlexibleDouble(ref Utf8JsonReader reader)
+        {
+            if (reader.TokenType == JsonTokenType.String)
+            {
+                var str = reader.GetString()?.Replace(",", "."); // cambiar coma por punto
+                if (double.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var val))
+                    return val;
+            }
+            else if (reader.TokenType == JsonTokenType.Number)
+            {
+                return reader.GetDouble();
+            }
+
+            return 0.0;
+        }
+
+        public override void Write(Utf8JsonWriter writer, InformacionContable value, JsonSerializerOptions options)
+        {
+            writer.WriteStartObject();
+
+            writer.WriteNumber("APagar", value.APagar);
+            writer.WriteNumber("Anticipo", value.Anticipo);
+            
+            if (value.esAnticipo.HasValue)
+                writer.WriteBoolean("esAnticipo", value.esAnticipo.Value);
+            else
+                writer.WriteNull("esAnticipo");
+
+            writer.WriteNumber("Base", value.Base);
+            writer.WriteNumber("Iva", value.Iva);
+            writer.WriteNumber("OtrosDescuentos", value.OtrosDescuentos);
+            writer.WriteNumber("RetFte", value.RetFte);
+            writer.WriteNumber("RetGarantia", value.RetGarantia);
+            writer.WriteNumber("RetGtia", value.RetGtia);
+            writer.WriteNumber("Tarifa", value.Tarifa);
+            writer.WriteNumber("PorcentajeICA", value.PorcentajeICA);
+            writer.WriteNumber("ValorICA", value.ValorICA);
+            writer.WriteNumber("Base2", value.Base2);
+            writer.WriteNumber("RetFte2", value.RetFte2);
+            writer.WriteNumber("Tarifa2", value.Tarifa2);
+            writer.WriteString("usuario", value.usuario);
+            writer.WriteBoolean("EsDocumentoSoporte", value.EsDocumentoSoporte);
+
+            writer.WriteEndObject();
+        }
+    }
+
 }

@@ -2053,8 +2053,8 @@ namespace Core.BLL
                     var pageSize = pdfPage.GetPageSize();
                     var canvas = new iText.Layout.Canvas(new PdfCanvas(pdfPage), pageSize);
                     
-                    // Position table at bottom right corner to avoid interfering with content
-                    float tableX = pageSize.GetWidth() - 300; // 300 units from right edge
+                    // Position table at bottom left corner like in the reference image
+                    float tableX = 50; // 50 units from left edge
                     float tableY = 50; // 50 units from bottom
                     
                     table.SetFixedPosition(tableX, tableY, 250); // width 250 units

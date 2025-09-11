@@ -249,14 +249,29 @@ namespace API.Controllers
         }
 
 
+        // [HttpPost]
+        // [Route("ActualizarDatosContables/{idFactura}")]
+        // public async Task<bool> ActualizarDatosContables([FromRoute] Guid idFactura, [FromBody] InformacionContable informacionContable)
+        // {
+        //     var log = new StreamWriter("log_datos_contables.txt");
+
+        //     DatosContables[] datosContables = informacionContable.ToDatosContables();
+        //     var result = await this._bll.ActualizarDatosContables(idFactura, datosContables.ToList(), informacionContable.usuario, informacionContable);
+
+        //     return result;
+        // }
+
         [HttpPost]
         [Route("ActualizarDatosContables/{idFactura}")]
-        public async Task<bool> ActualizarDatosContables([FromRoute] Guid idFactura, [FromBody] InformacionContable informacionContable)
+        public async Task<IActionResult> ActualizarDatosContables([FromRoute] Guid idFactura, [FromBody] InformacionContable informacionContable)
         {
             DatosContables[] datosContables = informacionContable.ToDatosContables();
             var result = await this._bll.ActualizarDatosContables(idFactura, datosContables.ToList(), informacionContable.usuario, informacionContable);
 
-            return result;
+            // Agregar un header personalizado a la respuesta
+            Response.Headers.Add("X-Procesamiento", "DatosContablesActualizados");
+
+            return Ok(result); // result es bool
         }
 
 
