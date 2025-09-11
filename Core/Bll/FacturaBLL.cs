@@ -1779,7 +1779,12 @@ namespace Core.BLL
                         float xPos = (200 * j) + 20;
                         float yPos = 0;
 
-                        canvas.AddImageAt(imageData, xPos, yPos, false);
+                        pic.SetFixedPosition(xPos, yPos);
+                        
+                        // Use Canvas to add the scaled image
+                        var layoutCanvas = new iText.Layout.Canvas(canvas, page.GetPageSize());
+                        layoutCanvas.Add(pic);
+                        layoutCanvas.Close();
 
 
                         // Add signature text
