@@ -46,15 +46,47 @@ namespace API
         //    //})
         //    .UseStartup<Startup>();
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-    WebHost.CreateDefaultBuilder(args)
-        .UseStartup<Startup>()
-        .UseUrls("http://*:7998")
-        .ConfigureLogging(logging =>
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args)
         {
-            logging.ClearProviders();
-            logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
-        })
-        .UseNLog();  // NLog: setup NLog for Dependency injection
+            var config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false)
+                .Build();
+
+            var port = config.GetValue<int>("ServerPort", 7998);
+            var useHttps = config.GetValue<bool>("UseHttps", false);
+            var protocol = useHttps ? "https" : "http";
+
+            var builder = WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>()
+                .UseUrls($"{protocol}://*:{port}")
+                .ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders();
+                    logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+                })
+                .UseNLog();  // NLog: setup NLog for Dependency injection
+
+            // Configure HTTPS with certificate if enabled
+            if (useHttps)
+            {
+                var certPath = config.GetValue<string>("Https:Certificate:Path");
+                var certPassword = config.GetValue<string>("Https:Certificate:Password");
+                var httpsPort = config.GetValue<int>("Https:Port", port);
+                
+                if (!string.IsNullOrEmpty(certPath))
+                {
+                    builder.UseKestrel(options =>
+                    {
+                        options.Listen(System.Net.IPAddress.Any, httpsPort, listenOptions =>
+                        {
+                            listenOptions.UseHttps(certPath, certPassword);
+                        });
+                    });
+                }
+            }
+
+            return builder;
+        }
     }
 }
