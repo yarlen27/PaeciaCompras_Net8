@@ -39,31 +39,147 @@ namespace API.Controllers
         [HttpPost]
         public override async Task<Proveedor> PostAsync([FromBody] Proveedor entity)
         {
+            try
+            {
+                Console.WriteLine("DEBUG: Iniciando PostAsync para Proveedor");
+                
+                // Validación inicial del parámetro entity
+                if (entity == null)
+                {
+                    Console.WriteLine("ERROR: El parámetro entity es null - verificar el JSON del request");
+                    throw new ArgumentNullException(nameof(entity), "El objeto Proveedor no puede ser null. Verificar Content-Type y JSON del request.");
+                }
 
+                // Sección 1: Extracción de claims
+                var claim = this.Request.HttpContext.User.Identities.First().Claims.ToArray().First(x => x.Type == "id");
+                try
+                {
+                    Console.WriteLine($"DEBUG: Claim ID extraído exitosamente: {claim.Value}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"ERROR: Error extrayendo claims: {ex.Message}");
+                    throw new Exception($"Error extrayendo claims de usuario: {ex.Message}");
+                }
 
-            var claim = this.Request.HttpContext.User.Identities.First().Claims.ToArray().First(x => x.Type == "id");
+                // Sección 2: Búsqueda de usuario
+                MongoIdentityUser user;
+                try
+                {
+                    user = (await this.userManager.FindByIdAsync(claim.Value));
+                    if (user == null)
+                    {
+                        Console.WriteLine($"ERROR: Usuario no encontrado para ID: {claim.Value}");
+                        throw new Exception($"Usuario no encontrado para ID: {claim.Value}");
+                    }
+                    Console.WriteLine($"DEBUG: Usuario encontrado: {user.UserName}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"ERROR: Error buscando usuario: {ex.Message}");
+                    throw new Exception($"Error buscando usuario: {ex.Message}");
+                }
 
-            var user = (await this.userManager.FindByIdAsync(claim.Value));
-            
-            var roles = from c in user.Client
-                        select c.rol;
-            //
-            //if (roles.Contains(5) || roles.Contains(8) || roles.Contains(11))
-            //{
+                // Sección 3: Extracción de roles
+                var roles = from c in user.Client select c.rol;
+                try
+                {
+                    if (user.Client == null)
+                    {
+                        Console.WriteLine("ERROR: user.Client es null");
+                        throw new Exception("La propiedad Client del usuario es null");
+                    }
+                    
+                    Console.WriteLine($"DEBUG: Roles extraídos exitosamente. Cantidad: {roles.Count()}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"ERROR: Error extrayendo roles: {ex.Message}");
+                    throw new Exception($"Error extrayendo roles: {ex.Message}");
+                }
 
-            //    throw new Exception();
-            //}
+                //
+                //if (roles.Contains(5) || roles.Contains(8) || roles.Contains(11))
+                //{
 
-            entity.userid = user.Id;
-            entity.UserName = user.UserName;
+                //    throw new Exception();
+                //}
 
-            var result = await base.PostAsync(entity);
+                // Sección 4: Asignación de propiedades de usuario a entidad
+                try
+                {
+                    Console.WriteLine($"DEBUG: Entrando a sección 4 - Asignación de propiedades");
+                    Console.WriteLine($"DEBUG: entity es null? {(entity == null)}");
+                    Console.WriteLine($"DEBUG: user es null? {(user == null)}");
+                    
+                    if (entity == null)
+                    {
+                        throw new Exception("entity es null en sección 4");
+                    }
+                    
+                    if (user == null)
+                    {
+                        throw new Exception("user es null en sección 4");
+                    }
+                    
+                    Console.WriteLine($"DEBUG: user.Id = {(user.Id ?? "NULL")}");
+                    Console.WriteLine($"DEBUG: user.UserName = {(user.UserName ?? "NULL")}");
+                    
+                    if (user.Id == null)
+                    {
+                        throw new Exception("user.Id es null");
+                    }
+                    
+                    if (user.UserName == null)
+                    {
+                        throw new Exception("user.UserName es null");
+                    }
+                    
+                    Console.WriteLine($"DEBUG: Asignando entity.userid");
+                    entity.userid = user.Id;
+                    Console.WriteLine($"DEBUG: Asignando entity.UserName");
+                    entity.UserName = user.UserName;
+                    Console.WriteLine($"DEBUG: Propiedades de usuario asignadas a entidad");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"ERROR: Error asignando propiedades de usuario: {ex.Message}");
+                    throw new Exception($"Error asignando propiedades de usuario: {ex.Message}");
+                }
 
+                // Sección 5: Llamada al método base
+                Proveedor result;
+                try
+                {
+                    result = await base.PostAsync(entity);
+                    Console.WriteLine($"DEBUG: Proveedor creado exitosamente con ID: {result.id}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"ERROR: Error en base.PostAsync: {ex.Message}");
+                    throw new Exception($"Error creando proveedor: {ex.Message}");
+                }
 
+                // Sección 6: Sincronización SQL
+                try
+                {
+                    proveedorSQLBLL.SincronizarProveedor(result.id);
+                    Console.WriteLine($"DEBUG: Sincronización SQL completada para proveedor ID: {result.id}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"ERROR: Error en sincronización SQL: {ex.Message}");
+                    // No lanzamos excepción aquí para no afectar el resultado principal
+                }
 
-            proveedorSQLBLL.SincronizarProveedor(result.id);
-
-            return result;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERROR GENERAL: Error en PostAsync: {ex.Message}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
+                throw;
+            }
         }
 
 

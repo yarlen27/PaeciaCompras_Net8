@@ -847,28 +847,73 @@ namespace Core.BLL
 
         public async Task<bool> ValidarEscrituraPDF(Guid uploadId)
         {
-
-            var archivoFactura = await DescargarFactura(uploadId);
-
+            var logPath = "/tmp/ValidarEscrituraPDF_debug.log";
+            
             try
             {
-                using (var inputStream = new MemoryStream(archivoFactura.file))
-                using (var reader = new PdfReader(inputStream))
-                using (var fs = new MemoryStream())
-                using (var writer = new PdfWriter(fs))
-                using (var pdfDoc = new PdfDocument(reader, writer))
+                await File.AppendAllTextAsync(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] INICIO ValidarEscrituraPDF - UploadId: {uploadId}\n");
+                
+                var archivoFactura = await DescargarFactura(uploadId);
+                await File.AppendAllTextAsync(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] DescargarFactura completado - File size: {archivoFactura?.file?.Length ?? 0} bytes\n");
+                
+                if (archivoFactura?.file == null || archivoFactura.file.Length == 0)
                 {
-                    // Si llegamos aquí sin excepción, el PDF se puede escribir
-                    return true;
+                    await File.AppendAllTextAsync(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ERROR: Archivo de factura es null o vacío\n");
+                    return false;
                 }
 
+                try
+                {
+                    await File.AppendAllTextAsync(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Iniciando procesamiento PDF...\n");
+                    
+                    using (var inputStream = new MemoryStream(archivoFactura.file))
+                    {
+                        await File.AppendAllTextAsync(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] MemoryStream creado\n");
+                        
+                        using (var reader = new PdfReader(inputStream))
+                        {
+                            await File.AppendAllTextAsync(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] PdfReader creado exitosamente\n");
+                            
+                            using (var fs = new MemoryStream())
+                            using (var writer = new PdfWriter(fs))
+                            {
+                                await File.AppendAllTextAsync(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] PdfWriter creado\n");
+                                
+                                using (var pdfDoc = new PdfDocument(reader, writer))
+                                {
+                                    await File.AppendAllTextAsync(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] PdfDocument creado exitosamente\n");
+                                    // Si llegamos aquí sin excepción, el PDF se puede escribir
+                                    await File.AppendAllTextAsync(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ÉXITO: PDF validado correctamente\n");
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception pdfEx)
+                {
+                    await File.AppendAllTextAsync(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ERROR PDF: {pdfEx.GetType().Name} - {pdfEx.Message}\n");
+                    await File.AppendAllTextAsync(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] STACK TRACE: {pdfEx.StackTrace}\n");
+                    if (pdfEx.InnerException != null)
+                    {
+                        await File.AppendAllTextAsync(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] INNER EXCEPTION: {pdfEx.InnerException.Message}\n");
+                    }
+                    return false;
+                }
             }
             catch (Exception ex)
             {
+                try
+                {
+                    await File.AppendAllTextAsync(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ERROR GENERAL: {ex.GetType().Name} - {ex.Message}\n");
+                    await File.AppendAllTextAsync(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] STACK TRACE: {ex.StackTrace}\n");
+                }
+                catch
+                {
+                    // Si no puede escribir el log, solo continúa
+                }
                 return false;
-
             }
-
         }
 
         private async Task<Guid> ImprimirAprobacionFactura(AprobacionMantenimiento aprobacionMantenimiento, List<AprobacionMantenimiento> aprobacionesMantenimiento, Guid item, List<OrdenTrabajo> ots, Factura factura)

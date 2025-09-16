@@ -11,6 +11,7 @@
     <PackageReference Include="jsreport.AspNetCore" Version="3.8.1" />
     <PackageReference Include="jsreport.Binary" Version="4.4.0" />
     <PackageReference Include="jsreport.Client" Version="3.8.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.8" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.6" />
     <PackageReference Include="NLog" Version="5.3.4" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.14" />

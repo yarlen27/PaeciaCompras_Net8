@@ -78,15 +78,16 @@ namespace API
 
             services.AddMvc(options => options.EnableEndpointRouting = false)
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
-                .AddJsonOptions(options =>
+                .AddNewtonsoftJson(options =>
                 {
-                    // Configurar para aceptar formato de fecha personalizado
-                    options.JsonSerializerOptions.Converters.Add(new FlexibleDateTimeConverter());
-                    options.JsonSerializerOptions.Converters.Add(new FlexibleDoubleConverter());
-                    options.JsonSerializerOptions.Converters.Add(new FlexibleInformacionContableConverter());
-
-                    // Configurar para mayor flexibilidad como Newtonsoft.Json
-                    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                    // Configuración flexible como en .NET 2.2 - ¡No más converters personalizados!
+                    options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+                    options.SerializerSettings.DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Include;
+                    options.SerializerSettings.DateFormatHandling = Newtonsoft.Json.DateFormatHandling.IsoDateFormat;
+                    options.SerializerSettings.DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Utc;
+                    
+                    // Mantener compatibilidad con el frontend existente
+                    options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.None;
                 });
 
 
