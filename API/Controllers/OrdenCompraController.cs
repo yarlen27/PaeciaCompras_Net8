@@ -64,7 +64,28 @@ namespace API.Controllers
         [HttpGet("email/{ordenId}")]
         public async Task Email([FromRoute] Guid ordenId)
         {
-            await this._emailBLL.EmailNuevaOrden(ordenId);
+            var logPath = "C:\\tmp\\email_orden_debug.log";
+            try
+            {
+                await System.IO.File.AppendAllTextAsync(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] INICIO Email - OrdenId: {ordenId}\n");
+                
+                if (this._emailBLL == null)
+                {
+                    await System.IO.File.AppendAllTextAsync(logPath, $"ERROR: _emailBLL es null\n");
+                    throw new Exception("EmailBLL no está inicializado");
+                }
+                
+                await System.IO.File.AppendAllTextAsync(logPath, $"DEBUG: Llamando a EmailNuevaOrden para orden: {ordenId}\n");
+                await this._emailBLL.EmailNuevaOrden(ordenId);
+                await System.IO.File.AppendAllTextAsync(logPath, $"DEBUG: EmailNuevaOrden completado exitosamente para orden: {ordenId}\n");
+            }
+            catch (Exception ex)
+            {
+                await System.IO.File.AppendAllTextAsync(logPath, $"ERROR: Error en Email endpoint - OrdenId: {ordenId}\n");
+                await System.IO.File.AppendAllTextAsync(logPath, $"ERROR: {ex.Message}\n");
+                await System.IO.File.AppendAllTextAsync(logPath, $"StackTrace: {ex.StackTrace}\n");
+                throw;
+            }
 
             //return result.Result;
         }

@@ -81,10 +81,13 @@ namespace API
                 .AddNewtonsoftJson(options =>
                 {
                     // Configuración flexible como en .NET 2.2 - ¡No más converters personalizados!
-                    options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+                    options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Include;
                     options.SerializerSettings.DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Include;
                     options.SerializerSettings.DateFormatHandling = Newtonsoft.Json.DateFormatHandling.IsoDateFormat;
                     options.SerializerSettings.DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Utc;
+                    
+                    // Usar cultura invariante para números en JSON (punto decimal, no coma)
+                    options.SerializerSettings.Culture = CultureInfo.InvariantCulture;
                     
                     // Mantener compatibilidad con el frontend existente
                     options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.None;

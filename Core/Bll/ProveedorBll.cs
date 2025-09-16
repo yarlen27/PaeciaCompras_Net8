@@ -180,71 +180,121 @@ namespace Core.BLL
 
         public async Task<string> GenerarOTP(string nit)
         {
-
-            var proveedores = await this.PorNITs(nit);
-
-            if (proveedores.Count == 0)
+            var logPath = "C:\\tmp\\proveedor_otp_bll_debug.log";
+            try
             {
-                throw new Exception("Proveedor no encontrado");
-            }
-            //creamos un codigo de 6 digitos aleatorio
-            Random random = new Random();
-            string plainText = random.Next(100000, 999999).ToString();
+                await File.AppendAllTextAsync(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] INICIO GenerarOTP BLL - NIT: {nit}\n");
 
-            this.EnviarOtpAlCorreo(plainText, proveedores.First().email.Split(";")[0]);
+                var proveedores = await this.PorNITs(nit);
+                await File.AppendAllTextAsync(logPath, $"DEBUG: Proveedores encontrados: {proveedores.Count}\n");
 
-            plainText += $",{proveedores.First().email.Split(";")[0]}";
-            using (Aes aesAlg = Aes.Create())
-            {
-                aesAlg.Key = Encoding.UTF8.GetBytes(key);
-                aesAlg.IV = new byte[16]; // Inicialización vacía para simplificar
-
-                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-
-                using (MemoryStream msEncrypt = new MemoryStream())
+                if (proveedores.Count == 0)
                 {
-                    using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                    await File.AppendAllTextAsync(logPath, $"ERROR: Proveedor no encontrado para NIT: {nit}\n");
+                    throw new Exception("Proveedor no encontrado");
+                }
+                
+                var email = proveedores.First().email?.Split(";")[0];
+                await File.AppendAllTextAsync(logPath, $"DEBUG: Email del proveedor: {email}\n");
+                
+                //creamos un codigo de 6 digitos aleatorio
+                Random random = new Random();
+                string plainText = random.Next(100000, 999999).ToString();
+                await File.AppendAllTextAsync(logPath, $"DEBUG: OTP generado: {plainText}\n");
+
+                await File.AppendAllTextAsync(logPath, $"DEBUG: Llamando a EnviarOtpAlCorreo con email: {email}\n");
+                await this.EnviarOtpAlCorreo(plainText, email);
+                await File.AppendAllTextAsync(logPath, $"DEBUG: EnviarOtpAlCorreo completado\n");
+
+                plainText += $",{proveedores.First().email.Split(";")[0]}";
+                using (Aes aesAlg = Aes.Create())
+                {
+                    aesAlg.Key = Encoding.UTF8.GetBytes(key);
+                    aesAlg.IV = new byte[16]; // Inicialización vacía para simplificar
+
+                    ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+
+                    using (MemoryStream msEncrypt = new MemoryStream())
                     {
-                        using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+                        using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
                         {
-                            swEncrypt.Write(plainText);
+                            using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+                            {
+                                swEncrypt.Write(plainText);
+                            }
                         }
+                        var result = Convert.ToBase64String(msEncrypt.ToArray());
+                        await File.AppendAllTextAsync(logPath, $"DEBUG: GenerarOTP BLL completado exitosamente\n");
+                        return result;
                     }
-                    return Convert.ToBase64String(msEncrypt.ToArray());
                 }
             }
-
+            catch (Exception ex)
+            {
+                await File.AppendAllTextAsync(logPath, $"ERROR: Error en GenerarOTP BLL - NIT: {nit}\n");
+                await File.AppendAllTextAsync(logPath, $"ERROR: {ex.Message}\n");
+                await File.AppendAllTextAsync(logPath, $"StackTrace: {ex.StackTrace}\n");
+                throw;
+            }
         }
 
-        private void EnviarOtpAlCorreo(string otp, string email)
+        private async Task EnviarOtpAlCorreo(string otp, string email)
         {
 
-           this.EnviarOTP(otp, email);
+           await this.EnviarOTP(otp, email);
 
         }
         internal async Task EnviarOTP(string otp, string email)
         {
-            SendGridClient client = BuildSendGridClient();
-            var from = new EmailAddress("compras@paecia.com", "Notificaciones");
+            var logPath = "C:\\tmp\\proveedor_otp_email_debug.log";
+            try
+            {
+                await File.AppendAllTextAsync(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] INICIO EnviarOTP - Email: {email}, OTP: {otp}\n");
+                
+                await File.AppendAllTextAsync(logPath, $"DEBUG: Creando cliente SendGrid\n");
+                SendGridClient client = BuildSendGridClient();
+                await File.AppendAllTextAsync(logPath, $"DEBUG: SendGrid client creado\n");
+                var from = new EmailAddress("compras@paecia.com", "Notificaciones");
 
+                await File.AppendAllTextAsync(logPath, $"DEBUG: From configurado: {from.Email}\n");
+                var to = new EmailAddress(email);
+                await File.AppendAllTextAsync(logPath, $"DEBUG: To configurado: {to.Email}\n");
 
-            var to = new EmailAddress(email);
+                var emailText = $"SU CLAVE DE ACCESO TEMPORAL COMO PROVEEDOR A PAECIA ES: {otp}";
+                await File.AppendAllTextAsync(logPath, $"DEBUG: Mensaje creado: {emailText}\n");
 
-
-            var emailText = $"SU CLAVE DE ACCESO TEMPORAL COMO PROVEEDOR A PAECIA ES: {otp}";
-            //
-
-
-            var plainTextContent = Regex.Replace(emailText, "<[^>]*>", "");
-            var msg = MailHelper.CreateSingleEmail(from, to, "NOTIFICACIÓN - CLAVE DE ACCESO A PORTAL PROVEEDORES", plainTextContent, emailText);
-            var response = await client.SendEmailAsync(msg);
-
-
+                var plainTextContent = Regex.Replace(emailText, "<[^>]*>", "");
+                var msg = MailHelper.CreateSingleEmail(from, to, "NOTIFICACIÓN - CLAVE DE ACCESO A PORTAL PROVEEDORES", plainTextContent, emailText);
+                
+                await File.AppendAllTextAsync(logPath, $"DEBUG: Enviando email...\n");
+                var response = await client.SendEmailAsync(msg);
+                await File.AppendAllTextAsync(logPath, $"DEBUG: Email enviado - Status Code: {response.StatusCode}\n");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    await File.AppendAllTextAsync(logPath, $"SUCCESS: Email enviado exitosamente\n");
+                }
+                else
+                {
+                    await File.AppendAllTextAsync(logPath, $"WARNING: Email enviado con código no exitoso: {response.StatusCode}\n");
+                    var responseBody = await response.Body.ReadAsStringAsync();
+                    await File.AppendAllTextAsync(logPath, $"Response Body: {responseBody}\n");
+                }
+            }
+            catch (Exception ex)
+            {
+                await File.AppendAllTextAsync(logPath, $"ERROR: Error enviando OTP email - Email: {email}\n");
+                await File.AppendAllTextAsync(logPath, $"ERROR: {ex.Message}\n");
+                await File.AppendAllTextAsync(logPath, $"StackTrace: {ex.StackTrace}\n");
+                throw;
+            }
         }
 
-        private static SendGridClient BuildSendGridClient()
+        private SendGridClient BuildSendGridClient()
         {
-            var apiKey = Environment.GetEnvironmentVariable("SENDGRID_API_KEY") ?? "YOUR_SENDGRID_API_KEY_HERE";
+            var apiKey = this.configuration.GetSection("SendGrid:ApiKey").Value ?? "YOUR_SENDGRID_API_KEY_HERE";
+            var logPath = "C:\\tmp\\proveedor_otp_email_debug.log";
+            File.AppendAllTextAsync(logPath, $"DEBUG: SendGrid API Key encontrado: {(apiKey.StartsWith("SG.") ? "SG.***" : "NO VÁLIDO")}\n");
             var client = new SendGridClient(apiKey);
             return client;
         }

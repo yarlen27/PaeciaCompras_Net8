@@ -69,16 +69,28 @@ namespace Cobalto.SQL.Core.BLL
 
                 foreach (var item in agrupadoPorProveedor)
                 {
-                    var proveedor = await this.proveedorBLL.GetById(item.Key);
-                    var notificacion = new NotificacionSagrilaf
+
+                    try
                     {
-                        Fecha = DateTime.Now,
-                        Leido = false,
-                        Mensaje = $"El proveedor {proveedor.nombre} tiene documentos sagrilaf próximos a vencer",
-                        Para = "Compras",
-                        Titulo = "Documentos próximos a vencer"
-                    };
-                    result.Add(notificacion);
+
+                        var proveedor = await this.proveedorBLL.GetById(item.Key);
+                        var notificacion = new NotificacionSagrilaf
+                        {
+                            Fecha = DateTime.Now,
+                            Leido = false,
+                            Mensaje = $"El proveedor {proveedor.nombre} tiene documentos sagrilaf próximos a vencer",
+                            Para = "Compras",
+                            Titulo = "Documentos próximos a vencer"
+                        };
+                        result.Add(notificacion);
+
+                    }
+                    catch
+                    { 
+                        
+
+                    }
+                    
 
                 }
 

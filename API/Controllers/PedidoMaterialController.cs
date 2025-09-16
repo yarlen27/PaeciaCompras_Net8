@@ -141,40 +141,84 @@ namespace API.Controllers
         [HttpPut("rechazarMaterial")]
         public virtual async Task<bool> RechazarMaterial([FromBody] PedidoMaterial entity)
         {
-
-            var rechazados = entity.detalle.Where(x => x.rechazado == true);
-
-            var entidadActual = (await this.GetById(entity.id));
-
-            var actuales = (await this.GetById(entity.id)).detalle.Where(x => x.rechazado == false);
-
-
-            foreach (var rechazado in rechazados)
+            var logPath = "C:\\tmp\\rechazar_material_debug.log";
+            try
             {
-                var valorActual = entidadActual.detalle.Where(x => x.descripcion == rechazado.descripcion && x.referencia == rechazado.referencia && x.cantidad == rechazado.cantidad);
+                await System.IO.File.AppendAllTextAsync(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] INICIO RechazarMaterial - PedidoId: {entity.id}\n");
 
-                if (valorActual.Count() > 0)
+                var rechazados = entity.detalle.Where(x => x.rechazado == true);
+                await System.IO.File.AppendAllTextAsync(logPath, $"DEBUG: Elementos a rechazar: {rechazados.Count()}\n");
+
+                var entidadActual = (await this.GetById(entity.id));
+                await System.IO.File.AppendAllTextAsync(logPath, $"DEBUG: Entidad actual obtenida - Detalle count: {entidadActual.detalle?.Count() ?? 0}\n");
+
+                var actuales = (await this.GetById(entity.id)).detalle.Where(x => x.rechazado == false);
+                await System.IO.File.AppendAllTextAsync(logPath, $"DEBUG: Elementos no rechazados actualmente: {actuales.Count()}\n");
+
+                foreach (var rechazado in rechazados)
                 {
-                    valorActual.First().rechazado = true;
-                    valorActual.First().observaciones = rechazado.observaciones;
+                    await System.IO.File.AppendAllTextAsync(logPath, $"DEBUG: Procesando rechazo - Descripción: '{rechazado.descripcion}', Referencia: '{rechazado.referencia}', Cantidad: {rechazado.cantidad}\n");
+                    
+                    var valorActual = entidadActual.detalle.Where(x => x.descripcion == rechazado.descripcion && x.referencia == rechazado.referencia && x.cantidad == rechazado.cantidad && x.nombre == rechazado.nombre);
+                    await System.IO.File.AppendAllTextAsync(logPath, $"DEBUG: Elementos encontrados para rechazar: {valorActual.Count()}\n");
+
+                    if (valorActual.Count() > 0)
+                    {
+                        await System.IO.File.AppendAllTextAsync(logPath, $"DEBUG: Marcando como rechazado: {rechazado.descripcion}\n");
+                        valorActual.First().rechazado = true;
+                        valorActual.First().observaciones = rechazado.observaciones;
+                        await System.IO.File.AppendAllTextAsync(logPath, $"DEBUG: Elemento marcado - rechazado: {valorActual.First().rechazado}, observaciones: '{valorActual.First().observaciones}'\n");
+                    }
+                    else
+                    {
+                        await System.IO.File.AppendAllTextAsync(logPath, $"WARNING: No se encontró elemento para rechazar: {rechazado.descripcion}\n");
+                    }
                 }
+
+                await System.IO.File.AppendAllTextAsync(logPath, $"DEBUG: Iniciando actualización en base de datos\n");
+                try
+                {
+                    await this.bll.Update(entidadActual);
+                    await System.IO.File.AppendAllTextAsync(logPath, $"SUCCESS: Actualización completada exitosamente\n");
+                }
+                catch (Exception updateEx)
+                {
+                    await System.IO.File.AppendAllTextAsync(logPath, $"ERROR: Error en actualización - {updateEx.Message}\n");
+                    await System.IO.File.AppendAllTextAsync(logPath, $"StackTrace: {updateEx.StackTrace}\n");
+                }
+
+                await System.IO.File.AppendAllTextAsync(logPath, $"DEBUG: Iniciando envío de emails de rechazo\n");
+                foreach (var item in rechazados)
+                {
+                    var valorActual = actuales.Where(x => x.descripcion == item.descripcion && x.referencia == item.referencia && x.cantidad == item.cantidad);
+                    await System.IO.File.AppendAllTextAsync(logPath, $"DEBUG: Enviando email para: {item.descripcion}, encontrados: {valorActual.Count()}\n");
+
+                    if (valorActual.Count() > 0)
+                    {
+                        try
+                        {
+                            await this._emailBLL.EmailMaterialRechazado(entity, item);
+                            await System.IO.File.AppendAllTextAsync(logPath, $"SUCCESS: Email enviado para: {item.descripcion}\n");
+                        }
+                        catch (Exception emailEx)
+                        {
+                            await System.IO.File.AppendAllTextAsync(logPath, $"ERROR: Error enviando email para {item.descripcion} - {emailEx.Message}\n");
+                        }
+                    }
+                }
+
+                await System.IO.File.AppendAllTextAsync(logPath, $"SUCCESS: RechazarMaterial completado exitosamente\n");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await System.IO.File.AppendAllTextAsync(logPath, $"ERROR: Error general en RechazarMaterial - {ex.Message}\n");
+                await System.IO.File.AppendAllTextAsync(logPath, $"StackTrace: {ex.StackTrace}\n");
+                throw;
             }
 
 
-            foreach (var item in rechazados)
-            {
-                var valorActual = actuales.Where(x => x.descripcion == item.descripcion && x.referencia == item.referencia && x.cantidad == item.cantidad);
-
-                if (valorActual.Count() > 0)
-                {
-                    await this._emailBLL.EmailMaterialRechazado(entity, item);
-                }
-            }
-
-
-
-            await this.bll.Update(entidadActual);
-            return true;
+           
         }
 
 

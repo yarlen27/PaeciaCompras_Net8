@@ -25,7 +25,7 @@ namespace Core.Models
         public bool aprobada { get; set; }
         public bool impresoContabilidad { get; set; }
         public bool rechazada { get; set; }
-        public List<string> aprobador { get; set; }
+        public List<string> aprobador { get; set; } = new List<string>();
 
         [BsonIgnore]
         public List<string> nombreAprobador { get; set; }

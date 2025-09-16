@@ -316,37 +316,41 @@ namespace Core.BLL
 
         public async Task EmailNuevaOrden(Guid entityId)
         {
-            var logPath = "/tmp/email_debug.log";
+            //var logPath = "email_debug.log";
+            
+            Console.WriteLine("Enviando correo");
             try
             {
-                await File.AppendAllTextAsync(logPath, $"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] EmailNuevaOrden iniciado para OrdenId: {entityId}\n");
-                
+              //  await File.AppendAllTextAsync(logPath, $"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] EmailNuevaOrden iniciado para OrdenId: {entityId}\n");
+
                 var ordenDeCompra = this._ordenCompraBLL.GetById(entityId).Result;
-                await File.AppendAllTextAsync(logPath, $"Orden encontrada: {ordenDeCompra?.id}, PedidoMaterial: {ordenDeCompra?.pedidoMaterial}\n");
+                //await File.AppendAllTextAsync(logPath, $"Orden encontrada: {ordenDeCompra?.id}, PedidoMaterial: {ordenDeCompra?.pedidoMaterial}\n");
 
                 if (ordenDeCompra.pedidoMaterial)
                 {
                     var detalle = ordenDeCompra.detalle;
-                    await File.AppendAllTextAsync(logPath, $"Procesando pedido material con {detalle?.Count()} items\n");
+                  //  await File.AppendAllTextAsync(logPath, $"Procesando pedido material con {detalle?.Count()} items\n");
 
                     foreach (var item in detalle)
                     {
-                        await File.AppendAllTextAsync(logPath, $"Procesando item para proveedor: {item.proveedor}\n");
+                    //    await File.AppendAllTextAsync(logPath, $"Procesando item para proveedor: {item.proveedor}\n");
                         await this.EnviarOrdenProveedor(item, ordenDeCompra);
                     }
                 }
                 else
                 {
-                    await File.AppendAllTextAsync(logPath, "Procesando pedido de servicio\n");
+                    // await File.AppendAllTextAsync(logPath, "Procesando pedido de servicio\n");
 
-                var detalle = ordenDeCompra.servicio;
-                    await File.AppendAllTextAsync(logPath, $"Servicio encontrado, pendiente de implementación\\n");
+                    var detalle = ordenDeCompra.servicio;
+                    // await File.AppendAllTextAsync(logPath, $"Servicio encontrado, pendiente de implementación\\n");
                     // await this.EnviarOrdenServicioProveedor(detalle, ordenDeCompra);
                 }
             }
             catch (Exception ex)
             {
-                await File.AppendAllTextAsync(logPath, $"ERROR en EmailNuevaOrden: {ex.Message}\\nStackTrace: {ex.StackTrace}\\n");
+                Console.WriteLine(ex.Message);
+
+                // await File.AppendAllTextAsync(logPath, $"ERROR en EmailNuevaOrden: {ex.Message}\\nStackTrace: {ex.StackTrace}\\n");
                 throw;
             }
         }

@@ -57,8 +57,30 @@ namespace API.Controllers
         [HttpGet("otp/{nit}")]
         public async Task<string> GenerarOTP([FromRoute] string nit)
         {
-
-            return await this._bll.GenerarOTP(nit);
+            var logPath = "C:\\tmp\\proveedor_otp_debug.log";
+            try
+            {
+                await System.IO.File.AppendAllTextAsync(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] INICIO GenerarOTP - NIT: {nit}\n");
+                
+                if (string.IsNullOrEmpty(nit))
+                {
+                    await System.IO.File.AppendAllTextAsync(logPath, $"ERROR: NIT es null o vacío\n");
+                    throw new ArgumentException("NIT no puede ser null o vacío");
+                }
+                
+                await System.IO.File.AppendAllTextAsync(logPath, $"DEBUG: Llamando a _bll.GenerarOTP para NIT: {nit}\n");
+                var result = await this._bll.GenerarOTP(nit);
+                await System.IO.File.AppendAllTextAsync(logPath, $"DEBUG: GenerarOTP completado - Resultado: {result}\n");
+                
+                return result;
+            }
+            catch (Exception ex)
+            {
+                await System.IO.File.AppendAllTextAsync(logPath, $"ERROR: Error en GenerarOTP - NIT: {nit}\n");
+                await System.IO.File.AppendAllTextAsync(logPath, $"ERROR: {ex.Message}\n");
+                await System.IO.File.AppendAllTextAsync(logPath, $"StackTrace: {ex.StackTrace}\n");
+                throw;
+            }
         }
 
 
