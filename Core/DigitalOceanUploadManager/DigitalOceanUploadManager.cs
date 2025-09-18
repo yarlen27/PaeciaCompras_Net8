@@ -257,6 +257,8 @@ namespace DigitalOceanUploader.Shared
                 using (var ms = new MemoryStream())
                 {
                     objectResponse.ResponseStream.CopyTo(ms);
+                    ms.Position = 0; // Reset stream position to beginning
+
                     result.file =   ms.ToArray();
                 }
 

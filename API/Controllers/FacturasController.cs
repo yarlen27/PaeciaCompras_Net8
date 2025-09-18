@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
@@ -286,6 +287,21 @@ namespace API.Controllers
             Console.WriteLine($"DEBUG: param.proyectos is null: {param.proyectos == null}");
             Console.WriteLine($"DEBUG: param.proveedor is null: {param.proveedor == null}");
             Console.WriteLine($"DEBUG: param.estado: {param.estado}");
+
+
+            string fechaTexto = param.inicio;
+                    
+            // Parse exacto según el formato
+            DateTime fecha = DateTime.ParseExact(
+                fechaTexto,
+                "yyyy-MM-dd HH:mm",
+                CultureInfo.InvariantCulture
+            );
+
+            // Restar 5 horas
+            DateTime fechaFinal = fecha.AddHours(-5);
+
+            param.inicio = fechaFinal.ToString("yyyy-MM-dd HH:mm");
             
             var result = await this._bll.FacturasFiltradas(param);
             return result.OrderBy(x => x.fecha).ToList();

@@ -157,6 +157,7 @@ namespace Core.Bll
             var total = ObtenerValorModelo(nodoUtil, "TaxInclusiveAmount");
             var numeroFactura = ObtenerValorModelo(nodoUtil, "ID");
 
+            total = total.Replace(".", ",", StringComparison.InvariantCultureIgnoreCase);
 
             var facturaXML = new FacturaElectronica()
             {
@@ -174,6 +175,7 @@ namespace Core.Bll
         internal string ObtenerValorModelo(XDocument nodoUtil, string value, string partXml = null)
         {
             string response = string.Empty;
+
 
             try
             {
