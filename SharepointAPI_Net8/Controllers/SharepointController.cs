@@ -76,5 +76,22 @@ namespace SharepointAPI_Net8.Controllers
                 });
             }
         }
+
+        [HttpPost("DescargarPDF")]
+        public async Task<IActionResult> DescargarPDF([FromBody] ResultadoPDF request)
+        {
+            try
+            {
+                var pdfContrato = await _sharePointService.DescargarPDFAsync(request.Link);
+                return Ok(pdfContrato);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { 
+                    success = false, 
+                    message = ex.Message
+                });
+            }
+        }
     }
 }

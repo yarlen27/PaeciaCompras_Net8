@@ -370,6 +370,74 @@ namespace SharepointAPI_Net8.Services
                 }
             }
         }
+
+        public async Task<PdfContrato> DescargarPDFAsync(string sharePointLink)
+        {
+            try
+            {
+                _logger.LogInformation("📥 Iniciando descarga de PDF desde: {Link}", sharePointLink);
+                
+                // Descargar archivo desde SharePoint
+                byte[] pdfBytes = await DescargarArchivoAsync(sharePointLink);
+                _logger.LogInformation("📄 Archivo PDF descargado: {Size} bytes", pdfBytes.Length);
+                
+                // Extraer nombre del archivo desde la URL
+                string fileName = ExtraerNombreArchivo(sharePointLink);
+                
+                // Convertir a Base64
+                string base64 = Convert.ToBase64String(pdfBytes);
+                _logger.LogInformation("🔄 Archivo convertido a Base64: {Length} caracteres", base64.Length);
+                
+                return new PdfContrato
+                {
+                    Name = fileName,
+                    Base64 = base64
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Error al descargar PDF: {Message}", ex.Message);
+                throw;
+            }
+        }
+
+        private string ExtraerNombreArchivo(string sharePointLink)
+        {
+            // try
+            // {
+                var uri = new Uri(sharePointLink);
+                
+                // Intentar extraer el nombre del parámetro 'file'
+                var fileName = System.Web.HttpUtility.ParseQueryString(uri.Query)["file"];
+                
+                if (!string.IsNullOrEmpty(fileName))
+                {
+                    return fileName;
+                }
+                
+                // Si no hay parámetro 'file', extraer de la URL directa
+                var segments = uri.Segments;
+                if (segments.Length > 0)
+                {
+                    var lastSegment = segments[segments.Length - 1];
+                    // Remover parámetros de query si existen
+                    var questionMarkIndex = lastSegment.IndexOf('?');
+                    if (questionMarkIndex > 0)
+                    {
+                        lastSegment = lastSegment.Substring(0, questionMarkIndex);
+                    }
+                    return Uri.UnescapeDataString(lastSegment);
+                }
+                
+                // Fallback: generar nombre genérico
+                return "documento.pdf";
+            // }
+            // catch (Exception ex)
+            // {
+            //     _logger.LogWarning(ex, "⚠️ No se pudo extraer nombre del archivo, usando nombre genérico");
+            //     return "documento.pdf";
+            // }
+        }
     }
 
     public class Links
