@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  sharepoint-api:
+    container_name: paecia_sharepoint_api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "1037:1037"
+    environment:
+      - ASPNETCORE_URLS=http://+:1037
+      - ASPNETCORE_ENVIRONMENT=Production
+    restart: unless-stopped
+    networks:
+      - paecia-network
+
+networks:
+  paecia-network:
+    driver: bridge

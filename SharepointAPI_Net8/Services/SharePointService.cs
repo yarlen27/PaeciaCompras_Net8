@@ -32,6 +32,7 @@ namespace SharepointAPI_Net8.Services
                 var certificatePassword = _configuration["AzureAd:CertificatePassword"] ?? throw new ArgumentException("AzureAd:CertificatePassword no configurado");
                 
                 _logger.LogInformation("🔐 Cargando certificado: {CertificatePath}", certificatePath);
+                _logger.LogInformation("🔑 CONTRASEÑA USADA: '{CertificatePassword}'", certificatePassword);
                 var certificate = new X509Certificate2(certificatePath, certificatePassword);
                 
                 _logger.LogInformation("🔑 Creando ClientCertificateCredential...");
@@ -53,6 +54,14 @@ namespace SharepointAPI_Net8.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "❌ Error al conectar con SharePoint: {Message}", ex.Message);
+                
+                // Si es error de certificado, incluir la contraseña en el mensaje
+                if (ex.Message.Contains("certificate data cannot be read") || ex.Message.Contains("password"))
+                {
+                    var certificatePassword = _configuration["AzureAd:CertificatePassword"];
+                    throw new Exception($"{ex.Message} - PASSWORD USADA: '{certificatePassword}'");
+                }
+                
                 throw;
             }
         }
