@@ -158,8 +158,11 @@ namespace API.Controllers
                 foreach (var rechazado in rechazados)
                 {
                     await System.IO.File.AppendAllTextAsync(logPath, $"DEBUG: Procesando rechazo - Descripción: '{rechazado.descripcion}', Referencia: '{rechazado.referencia}', Cantidad: {rechazado.cantidad}\n");
-                    
-                    var valorActual = entidadActual.detalle.Where(x => x.descripcion == rechazado.descripcion && x.referencia == rechazado.referencia && x.cantidad == rechazado.cantidad && x.nombre == rechazado.nombre);
+
+                    IEnumerable<PedidoMaterialDetalle> valorActual = new List<PedidoMaterialDetalle>();
+
+                    valorActual = ( entidadActual.detalle.Where(x => x.descripcion == rechazado.descripcion && x.referencia == rechazado.referencia && x.cantidad == rechazado.cantidad && x.nombre == rechazado.nombre && x.rechazado == false)).ToList();
+
                     await System.IO.File.AppendAllTextAsync(logPath, $"DEBUG: Elementos encontrados para rechazar: {valorActual.Count()}\n");
 
                     if (valorActual.Count() > 0)
