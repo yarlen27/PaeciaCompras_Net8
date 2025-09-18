@@ -514,6 +514,9 @@ namespace Creimed.Api.Controllers
                     using (var stream = new MemoryStream())
                     {
                         file.CopyTo(stream);
+
+                        stream.Position = 0; // Reset stream position to beginning
+
                         var uploadId = await this.uploadManager.UploadFile(stream, fileName);
 
                         var factura = await this._facturaBLL.GetById(id);
@@ -796,6 +799,8 @@ namespace Creimed.Api.Controllers
                     using (var stream = new MemoryStream())
                     {
                         file.CopyTo(stream);
+                        stream.Position = 0; // Reset stream position to beginning
+
                         var uploadId = await this.uploadManager.UploadFile(stream, fileName);
 
                         var ordencompra = await _ordenCompraBLL.GetById(id);
