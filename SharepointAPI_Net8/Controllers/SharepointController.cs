@@ -55,5 +55,26 @@ namespace SharepointAPI_Net8.Controllers
                 });
             }
         }
+
+        [HttpPost("GenerarPDF")]
+        public async Task<IActionResult> GenerarPDF([FromBody] GenerarPDFRequest request)
+        {
+            try
+            {
+                var pdfUrl = await _sharePointService.GenerarPDFAsync(request.Link);
+                return Ok(new { 
+                    success = true, 
+                    pdfUrl = pdfUrl,
+                    message = "PDF generado exitosamente"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { 
+                    success = false, 
+                    message = ex.Message
+                });
+            }
+        }
     }
 }

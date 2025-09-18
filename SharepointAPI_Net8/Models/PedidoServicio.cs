@@ -15,4 +15,9 @@ namespace SharepointAPI_Net8.Models
         public string Name { get; set; } = string.Empty;
         public string Base64 { get; set; } = string.Empty;
     }
+
+    public class GenerarPDFRequest
+    {
+        public string Link { get; set; } = string.Empty;
+    }
 }
