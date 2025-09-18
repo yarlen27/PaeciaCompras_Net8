@@ -38,5 +38,22 @@ namespace SharepointAPI_Net8.Controllers
                 });
             }
         }
+
+        [HttpPost("GenerarContrato")]
+        public async Task<IActionResult> GenerarContrato([FromBody] PedidoServicio pedidoServicio)
+        {
+            try
+            {
+                var links = await _sharePointService.GenerarContratoAsync(pedidoServicio.base64);
+                return Ok(links);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { 
+                    success = false, 
+                    message = ex.Message
+                });
+            }
+        }
     }
 }
