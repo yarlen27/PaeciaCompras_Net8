@@ -9,8 +9,8 @@ namespace Core.Models
 
         public string inicio { get; set; }
         public string fin { get; set; }
-        public List<Guid> proyectos { get; set; }
-        public List<Guid> proveedor { get; set; }
+        public List<Guid>? proyectos { get; set; } = new List<Guid>();
+        public List<Guid>? proveedor { get; set; } = new List<Guid>();
         public string estado { get; set; }
 
     }

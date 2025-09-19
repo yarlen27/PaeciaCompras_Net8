@@ -1,0 +1,11 @@
+Azure AD App Registration - SharePoint-GraphAPI-App
+=====================================================
+
+Client ID: b5326f32-839e-4730-b094-52a71f3d5f37
+Tenant ID: c841d196-d1a6-4064-a0e0-9878c15cb140
+
+Certificate: graphapi-certificate.pfx
+Password: GraphAPI2024
+
+Permissions: Sites.Read.All (Application) - Granted
+Target Site: https://paeciaconstructora.sharepoint.com/sites/SGD
