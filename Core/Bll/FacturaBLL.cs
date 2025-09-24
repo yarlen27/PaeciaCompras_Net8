@@ -1984,8 +1984,19 @@ namespace Core.BLL
                         }
                     }
 
-                    // Position table on the page
-                    table.SetFixedPosition(0, 700, rectangle.GetWidth());
+                    // Add table to first page using Canvas (like AgregarDatosContables)
+                    var pdfPage = pdfDoc.GetPage(pageCount);
+                    var pageSize = pdfPage.GetPageSize();
+                    var layoutCanvas = new iText.Layout.Canvas(new PdfCanvas(pdfPage), pageSize);
+
+                    // Position table higher on the page
+                    float tableX = 20; // 20 units from left edge
+                    float tableY = 700; // 700 units from bottom
+
+                    table.SetFixedPosition(tableX, tableY, rectangle.GetWidth() - 40); // width minus margins
+                    layoutCanvas.Add(table);
+
+                    layoutCanvas.Close();
                 }
 
                 // Add signatures
